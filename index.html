@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>დიაბეტის კომისია — Supabase V59</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#f5f7fb;color:#1f2937}
+header{background:#173b63;color:white;padding:18px 28px}
+header h1{margin:0;font-size:22px} header small{opacity:.8}
+nav{display:flex;gap:8px;padding:14px 28px;background:white;border-bottom:1px solid #ddd}
+button{border:0;border-radius:7px;padding:10px 15px;cursor:pointer;font-size:14px}
+nav button{background:#eef2f7}.primary{background:#1769aa;color:white}.success{background:#198754;color:white}.danger{background:#c0392b;color:white}
+main{padding:25px 28px;max-width:1250px;margin:auto}.page{display:none}.page.active{display:block}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.card{background:white;padding:20px;border-radius:10px;box-shadow:0 1px 5px #0001}.num{font-size:28px;font-weight:bold;margin-top:8px}
+.panel{background:white;border-radius:10px;padding:22px;margin-top:18px;box-shadow:0 1px 5px #0001}
+table{width:100%;border-collapse:collapse}th,td{padding:12px;border-bottom:1px solid #eee;text-align:left}th{background:#f7f8fa}
+input,select,textarea{width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccd3dd;border-radius:6px;margin-top:5px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.full{grid-column:1/-1}label{font-size:13px;font-weight:bold}
+.badge{padding:5px 9px;border-radius:12px;font-size:12px}.pending{background:#fff3cd}.positive{background:#d1e7dd}.negative{background:#f8d7da}
+.viewer{height:390px;background:#eef1f5;border:1px dashed #aab3bf;border-radius:8px;display:flex;align-items:center;justify-content:center;text-align:center;color:#667085}
+.row-actions{display:flex;gap:7px}.muted{color:#6b7280}
+#toast{position:fixed;right:20px;bottom:20px;background:#222;color:#fff;padding:12px 18px;border-radius:8px;display:none}
+@media(max-width:800px){.cards,.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+</style>
+<style>
+.resolution-box{margin-top:22px;padding:20px;border:1px solid #d7dee8;border-radius:10px;background:#f8fafc}
+.resolution-box h3{margin-top:0}.resolution-buttons{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.resolution-buttons button{min-width:150px;font-weight:bold}.resolution-note{min-height:90px}
+</style><style>
+.section-title{grid-column:1/-1;margin:8px 0 -4px;padding-top:8px;border-top:1px solid #eee}
+.duplicate-warning{display:none;margin-top:14px;padding:14px;border-radius:8px;background:#fff3cd;border:1px solid #e8c766}
+.resolution-box{margin-top:22px;padding:20px;border:1px solid #d7dee8;border-radius:10px;background:#f8fafc}
+.resolution-buttons{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.resolution-buttons button{min-width:150px;font-weight:bold}
+.resolution-note{min-height:90px}
+.pdf-link{display:inline-block;margin-top:10px}
+</style><style>
+#loginScreen{position:fixed;inset:0;background:#f4f7fb;display:flex;align-items:center;justify-content:center;z-index:100000}
+.login-card{width:min(430px,92vw);background:#fff;border-radius:18px;padding:30px;box-shadow:0 12px 40px rgba(0,0,0,.12)}
+.login-card h1{margin:0 0 8px}.login-card p{color:#667085;margin:0 0 22px}
+.login-card label{display:block;margin:12px 0 6px;font-weight:600}
+.login-card input{width:100%;box-sizing:border-box;padding:11px;border:1px solid #d0d5dd;border-radius:9px}
+.login-card button{width:100%;margin-top:18px;padding:12px;border:0;border-radius:9px;cursor:pointer;font-weight:700}
+.user-menu{position:fixed;top:12px;right:16px;z-index:99999;display:flex;align-items:center;gap:8px}
+#logoutBtn{padding:7px 11px;border:1px solid #d0d5dd;background:#fff;border-radius:8px;cursor:pointer}
+</style>
+<script>
+(function(){
+  [
+    'diabetes_demo_cases_v13','diabetes_demo_cases_v14','diabetes_demo_cases_v15',
+    'diabetes_demo_cases_v16','diabetes_demo_cases_v17','diabetes_demo_cases_v18',
+    'diabetes_demo_cases_v19','diabetes_demo_cases_v20','diabetes_demo_cases_v21',
+    'diabetes_demo_cases_v22','diabetes_demo_cases_v23','diabetes_demo_cases_v24',
+    'diabetes_demo_cases_v25','diabetes_demo_cases_v26','diabetes_demo_cases_v27',
+    'diabetes_demo_cases_v28','diabetes_demo_cases_v29','diabetes_demo_cases_v30'
+  ].forEach(k=>localStorage.removeItem(k));
+})();
+</script>
+<style id="visual-redesign">:root{--navy:#17324d;--blue:#2f6fed;--text:#172b4d;--muted:#667085;--border:#dfe5ec;--bg:#f5f7fa;--card:#fff;--radius:14px;--shadow:0 2px 10px rgba(16,24,40,.06)}*{box-sizing:border-box}body{margin:0!important;background:var(--bg)!important;color:var(--text)!important;font-family:"Segoe UI","Noto Sans Georgian",Arial,sans-serif!important;font-size:14px!important}button,input,select,textarea{font-family:inherit!important}button{border:1px solid var(--border)!important;border-radius:9px!important;background:#fff!important;color:#344054!important;padding:9px 14px!important;font-weight:600!important;cursor:pointer!important}button.primary,.primary{background:var(--blue)!important;color:#fff!important;border-color:var(--blue)!important}input,select,textarea{border:1px solid #d0d5dd!important;border-radius:9px!important;background:#fff!important;color:#101828!important;padding:10px 12px!important;outline:none!important}input:focus,select:focus,textarea:focus{border-color:var(--blue)!important;box-shadow:0 0 0 3px rgba(47,111,237,.12)!important}label{color:#344054!important;font-weight:600!important}.card,.panel,.box{background:var(--card)!important;border:1px solid var(--border)!important;border-radius:var(--radius)!important;box-shadow:var(--shadow)!important}h1,h2,h3{color:var(--text)!important}.muted{color:var(--muted)!important}table{border-collapse:separate!important;border-spacing:0!important;width:100%!important}th{background:#f8fafc!important;color:#475467!important;font-weight:700!important;border-bottom:1px solid var(--border)!important}td{border-bottom:1px solid #eef1f4!important}.badge,.status{border-radius:999px!important;padding:5px 10px!important;font-size:12px!important;font-weight:700!important}</style>
+<style id="v33-ui-fixes">
+nav button{background:#fff!important;border:1px solid #dfe5ec!important}nav button:hover{background:#eef4ff!important}nav button[data-roles]{ }
+#userRegistrationPanel .user-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#userRegistrationPanel .user-actions{display:flex;gap:10px;align-items:center;margin-top:16px}
+#userRegistrationPanel .user-list{margin-top:22px;border-top:1px solid #eef1f4}
+@media(max-width:800px){#userRegistrationPanel .user-form-grid{grid-template-columns:1fr}}
+</style>
+
+<style id="sidebar-redesign">
+:root{--side:#193b5a;--side2:#2c587c;--side-text:#f7fbff;--page:#f5f7fa;--blue:#2f6fed;--line:#dfe5ec;--text:#172b4d;--muted:#667085}
+body{background:var(--page)!important}
+body:has(#app),body:has(.app){overflow-x:hidden}
+#app,.app,.shell,.main-shell{min-height:100vh}
+.sidebar{
+  position:fixed!important;left:0!important;top:0!important;bottom:0!important;
+  width:260px!important;background:var(--side)!important;color:var(--side-text)!important;
+  padding:28px 16px!important;z-index:1000!important;
+}
+.sidebar h1,.sidebar h2,.sidebar .brand{
+  color:#fff!important;margin:0 10px 28px!important;font-weight:800!important;
+}
+.sidebar button,.sidebar a,.sidebar .nav-item{
+  display:block!important;width:100%!important;text-align:left!important;
+  background:transparent!important;color:#eaf2f8!important;border:0!important;
+  border-radius:9px!important;margin:5px 0!important;padding:11px 14px!important;
+}
+.sidebar button:hover,.sidebar a:hover,.sidebar .nav-item:hover,
+.sidebar .active,.sidebar button.active{
+  background:var(--side2)!important;color:#fff!important;
+}
+.content,.main-content,.page-wrap,.workspace{
+  margin-left:260px!important;min-height:100vh!important;
+}
+.topbar{
+  margin-left:260px!important;
+}
+@media(max-width:900px){
+ .sidebar{width:220px!important}.content,.main-content,.page-wrap,.workspace,.topbar{margin-left:220px!important}
+}
+</style>
+
+<style id="menu-collapse-style">
+#sideMenuToggle{position:fixed!important;left:14px!important;top:14px!important;z-index:1200!important;border:0!important;border-radius:9px!important;background:#193b5a!important;color:#fff!important;padding:10px 15px!important;font-weight:700!important;box-shadow:0 2px 8px rgba(0,0,0,.12)!important}
+#sideMenuToggle:hover{background:#2c587c!important}
+body.menu-collapsed .sidebar{width:0!important;padding:0!important;overflow:hidden!important}
+body.menu-collapsed .sidebar>*{display:none!important}
+body.menu-collapsed .content,body.menu-collapsed .main-content,body.menu-collapsed .page-wrap,body.menu-collapsed .workspace,body.menu-collapsed .topbar{margin-left:0!important}
+.sidebar{transition:width .22s ease,padding .22s ease!important}
+.content,.main-content,.page-wrap,.workspace,.topbar{transition:margin-left .22s ease!important}
+</style>
+
+<style id="role-specific-navigation">
+body[data-role="doctor"] .sidebar,
+body[data-role="doctor"] #sideMenuToggle{
+  display:none!important;
+}
+body[data-role="doctor"] main,
+body[data-role="doctor"] .content,
+body[data-role="doctor"] .main-content,
+body[data-role="doctor"] .page-wrap,
+body[data-role="doctor"] .workspace,
+body[data-role="doctor"] .topbar{
+  margin-left:0!important;
+}
+body[data-role="doctor"] header{
+  margin-left:0!important;
+}
+body[data-role="doctor"] #dashboard,
+body[data-role="doctor"] #cases,
+body[data-role="doctor"] #new,
+body[data-role="doctor"] #userRegistrationPanel{
+  display:none!important;
+}
+body[data-role="registrar"] #doctor{
+  display:none!important;
+}
+</style>
+
+
+<script id="role-nav-init">
+(function(){
+  try{
+    const s=JSON.parse(localStorage.getItem('diabetes_demo_session')||'null');
+    if(s && s.role==='doctor') document.documentElement.classList.add('doctor-mode');
+  }catch(e){}
+})();
+</script>
+<style>
+html.doctor-mode .sidebar,html.doctor-mode #sideMenuToggle{display:none!important}
+</style>
+
+
+<style id="user-label-visibility-fix">
+#currentUserLabel,
+.current-user,
+.user-label,
+.logged-user,
+.header-user,
+.topbar-user{
+  color:#fff!important;
+  opacity:1!important;
+  font-weight:700!important;
+}
+</style>
+
+
+<style id="strict-role-menu-fix">
+/* The sidebar redesign uses !important, so role filtering also needs !important. */
+body[data-role="registrar"] .sidebar button[data-roles="admin"],
+body[data-role="registrar"] .sidebar button[data-roles="admin doctor"]{
+  display:none!important;
+}
+body[data-role="registrar"] .sidebar button[data-roles="admin registrar"]{
+  display:block!important;
+}
+body[data-role="doctor"] .sidebar,
+body[data-role="doctor"] #sideMenuToggle{
+  display:none!important;
+}
+body[data-role="doctor"] .content,
+body[data-role="doctor"] .main-content,
+body[data-role="doctor"] .page-wrap,
+body[data-role="doctor"] .workspace,
+body[data-role="doctor"] .topbar,
+body[data-role="doctor"] main{
+  margin-left:0!important;
+}
+</style>
+
+
+<style id="multi-login-style">
+#rememberedLoginList{display:none;position:absolute;left:0;right:0;top:100%;margin-top:5px;background:#fff;border:1px solid #d0d5dd;border-radius:9px;box-shadow:0 8px 20px rgba(16,24,40,.10);z-index:100001;overflow:hidden}
+.remembered-login-item{padding:10px 12px;border-bottom:1px solid #eef1f4;cursor:pointer}
+.remembered-login-item:last-child{border-bottom:0}
+.remembered-login-item:hover{background:#f8fafc}
+.remembered-login-item strong{display:block;color:#172b4d}
+.remembered-login-item small{color:#667085}
+.login-user-wrap{position:relative}
+</style>
+
+
+<style id="mobile-responsive-v42">
+*{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:hidden}
+img,iframe,embed{max-width:100%}
+@media (max-width: 768px){
+  body{font-size:14px!important}
+
+  /* Sidebar */
+  .sidebar{
+    width:280px!important;
+    max-width:82vw!important;
+    transform:translateX(-105%)!important;
+    transition:transform .22s ease!important;
+    box-shadow:6px 0 20px rgba(16,24,40,.18)!important;
+    padding:72px 14px 20px!important;
+  }
+  body.mobile-menu-open .sidebar{
+    transform:translateX(0)!important;
+  }
+  .content,.main-content,.page-wrap,.workspace,.topbar,main{
+    margin-left:0!important;
+    width:100%!important;
+  }
+
+  /* Keep the menu button visible and easy to tap */
+  #sideMenuToggle{
+    left:12px!important;
+    top:12px!important;
+    min-height:44px!important;
+    padding:10px 14px!important;
+    z-index:1201!important;
+  }
+
+  /* Cards / panels */
+  .card,.panel,.box{
+    margin-left:10px!important;
+    margin-right:10px!important;
+    width:auto!important;
+    border-radius:12px!important;
+  }
+
+  /* Generic grids become one column */
+  .grid,.form-grid,.two-col,.three-col{
+    grid-template-columns:1fr!important;
+  }
+
+  /* Forms */
+  input,select,textarea{
+    width:100%!important;
+    min-height:44px!important;
+    font-size:16px!important;
+  }
+  textarea{min-height:110px!important}
+  label{display:block!important;margin-bottom:10px!important}
+
+  /* Buttons */
+  button{
+    min-height:44px!important;
+    font-size:14px!important;
+  }
+
+  /* Tables can scroll horizontally instead of breaking layout */
+  .table-wrap,.table-responsive{
+    overflow-x:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  table{
+    min-width:760px!important;
+  }
+
+  /* User management */
+  #userRegistrationPanel{
+    margin:10px!important;
+    padding:14px!important;
+  }
+  #createdUsersList>div{
+    flex-wrap:wrap!important;
+  }
+
+  /* Login */
+  .login-card,.login-box{
+    width:calc(100% - 28px)!important;
+    max-width:460px!important;
+    margin:14px auto!important;
+  }
+
+  /* Prevent long headings from overflowing */
+  h1,h2,h3{
+    overflow-wrap:anywhere!important;
+  }
+
+  /* PDF preview */
+  iframe,embed{
+    width:100%!important;
+    min-height:65vh!important;
+  }
+}
+
+@media (min-width:769px){
+  body.mobile-menu-open .sidebar{transform:none!important}
+}
+</style>
+
+
+<style id="supabase-auth-v48-style">
+#supabaseSetup.show{display:block!important}
+</style>
+</head>
+<div id="loginScreen"><div class="login-card">
+<h1>დიაბეტის კომისია</h1><p>სისტემაში შესვლა</p>
+<label for="loginUser">მომხმარებელი</label><div class="login-user-wrap"><input id="loginUser" autocomplete="username" placeholder="მომხმარებელი"><div id="rememberedLoginList"></div></div>
+<label for="loginPass">პაროლი</label><input id="loginPass" type="password" autocomplete="current-password" placeholder="პაროლი">
+<label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:500"><input id="rememberLogin" type="checkbox" style="width:auto;margin:0"> ელფოსტის დამახსოვრება</label><button type="button" onclick="portalLogin()">შესვლა</button><div id="loginError" style="color:#b42318;margin-top:10px;min-height:20px"></div>
+<div id="supabaseSetup" style="margin-top:18px;padding-top:14px;border-top:1px solid #eee;display:none">
+  <div style="font-weight:700;margin-bottom:6px">Supabase კავშირის პარამეტრი</div>
+  <div style="font-size:12px;color:#667085;margin-bottom:8px">ერთხელ შეიყვანე Publishable key. Secret key აქ არასოდეს შეიყვანო.</div>
+  <input id="supabasePublishableKey" placeholder="sb_publishable_..." autocomplete="off">
+  <button type="button" class="primary" style="margin-top:8px" onclick="saveSupabaseBrowserConfig()">კავშირის შენახვა</button>
+</div>
+
+</div></div>
+<div class="user-menu" style="color:#fff!important;font-weight:700!important"><span id="roleLabel"></span><button id="logoutBtn" onclick="portalLogout()">გასვლა</button></div>
+<body>
+<header><h1>დიაბეტის კომისიის ელექტრონული მოდული</h1><small>ელექტრონული მოდული — ონლაინ ავტორიზაცია და მონაცემთა ცენტრალიზებული სისტემა</small></header>
+<aside class="sidebar"><div class="brand">დიაბეტის კომისია</div><button type="button" data-roles="admin" onclick="show('userRegistrationPanel')">მომხმარებლები</button>
+<button data-roles="admin registrar" onclick="show('dashboard')">მთავარი</button>
+<button data-roles="admin registrar" onclick="show('cases')">საქმეების რეესტრი</button>
+<button onclick="show('new')" data-roles="admin registrar">＋ ახალი განცხადება</button>
+<button onclick="show('doctor')" data-roles="admin doctor">ექიმის სამუშაო სივრცე</button>
+</aside>
+<main>
+<section id="dashboard" class="page active">
+<h2>მთავარი გვერდი</h2>
+<div class="cards">
+<div class="card">სულ საქმეები<div class="num" id="cAll">0</div></div>
+<div class="card">განსახილველი<div class="num" id="cPending">0</div></div>
+<div class="card">დადებითი<div class="num" id="cPos">0</div></div>
+<div class="card">უარყოფითი<div class="num" id="cNeg">0</div></div>
+</div>
+<div class="panel"><h3>ბოლო საქმეები</h3><div id="recent"></div></div>
+</section>
+
+<section id="cases" class="page">
+<h2>საქმეების რეესტრი</h2>
+<div class="panel">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+<input id="search" style="flex:1;min-width:280px" placeholder="ძებნა: საქმის ნომერი, პირადი ნომერი, სახელი ან გვარი..." oninput="renderCases()">
+<button type="button" onclick="exportCSV()">Excel / CSV ექსპორტი</button>
+<button type="button" class="primary" onclick="openExcelImport()">Excel-დან იმპორტი</button>
+<input id="excelImportFile" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importExcelToDatabase(this)">
+</div>
+<div style="margin-top:18px" id="caseTable"></div>
+</div>
+</section>
+
+<section id="new" class="page">
+<h2 id="newPageTitle">ახალი განცხადება</h2>
+<div class="panel">
+<div class="grid">
+<div class="section-title"><h3>განაცხადის მონაცემები — Excel-ის თანმიმდევრობით</h3></div>
+
+<div><label>წერილი №</label><input id="letterNo" tabindex="1"></div>
+<div><label>თარიღი <span class="muted">(არასავალდებულო)</span></label><input id="date" tabindex="2" type="text" inputmode="numeric" placeholder="dd/mm/yyyy" maxlength="10" oninput="dateMask(this)" onblur="validateDateField(this)"></div>
+<div><label>დაბადების თარიღი</label><input id="dob" tabindex="3" type="text" inputmode="numeric" placeholder="dd/mm/yyyy" maxlength="10" oninput="dateMask(this);checkDuplicate()" onblur="validateDateField(this)"></div>
+<div><label>პირადი № <span class="required-star">*</span></label><input id="pn" tabindex="4" oninput="checkDuplicate()"></div>
+<div><label>მისამართი</label><input id="address" tabindex="5"></div>
+<div><label>ტელეფონი</label><input id="phone" tabindex="6"></div>
+<div><label>გვარი <span class="required-star">*</span></label><input id="surname" tabindex="7" oninput="checkDuplicate()"></div>
+<div><label>სახელი <span class="required-star">*</span></label><input id="firstName" tabindex="8" oninput="checkDuplicate()"></div>
+<div><label>ICD კოდი</label><input id="icd" tabindex="9"></div>
+<div><label>დაწესებულება</label><input id="institution" tabindex="10"></div>
+<div><label>ექიმი <span class="muted">(არასავალდებულო)</span></label>
+<input id="doctorName" tabindex="11" placeholder="თუ მკაფიოდ იკითხება; თუ არა — დატოვეთ ცარიელი"></div>
+<div><label>ფორმა №100-ის თარიღი</label><input id="form100Date" tabindex="12" type="text" inputmode="numeric" placeholder="dd/mm/yyyy" maxlength="10" oninput="dateMask(this)" onblur="validateDateField(this)"></div>
+<div><label>ლანტუსი <span class="muted">(არასავალდებულო)</span></label><input id="lantus" tabindex="13"></div>
+<div><label>აპიდრა <span class="muted">(არასავალდებულო)</span></label><input id="apidra" tabindex="14"></div>
+<div><label>ტიპი</label><select id="type" tabindex="15"><option value="I">I ტიპი</option><option value="II">II ტიპი</option></select></div>
+<div><label>გლიკო% <span class="muted">(არასავალდებულო)</span></label><input id="glyco" tabindex="16"></div>
+<div class="full"><label>შენიშვნა</label><textarea id="note" tabindex="17" rows="3"></textarea></div>
+<div class="full"><label>სტატუსი</label><div class="muted" style="padding-top:10px">ახალი საქმე ავტომატურად იქნება <b>განსახილველი</b>.</div></div>
+<div class="full"><label>ფორმა №100 / დოკუმენტი</label><input id="file" tabindex="100" type="file" accept="application/pdf,.pdf,.jpg,.jpeg,.png">
+<div id="uploadPreview" style="display:none;margin-top:12px;border:1px solid #d9dee8;border-radius:10px;overflow:hidden;background:#f7f8fa"><div style="padding:8px 12px;font-weight:600">დოკუმენტის წინასწარი ნახვა</div><iframe id="uploadPdfFrame" style="width:100%;height:520px;border:0;background:white"></iframe><img id="uploadImagePreview" style="display:none;max-width:100%;max-height:520px;margin:auto" alt="დოკუმენტის ნახვა"></div></div>
+
+<div class="full duplicate-warning" id="duplicateWarning"></div>
+</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+<button id="saveCaseBtn" class="primary" type="button" onclick="addCase()">განაცხადის რეგისტრაცია</button>
+<button id="cancelEditBtn" type="button" style="display:none" onclick="cancelEditCase()">რედაქტირების გაუქმება</button>
+</div>
+</div>
+</section>
+
+<section id="doctor" class="page">
+<h2>ექიმის სამუშაო სივრცე</h2>
+<div class="panel">
+<div id="doctorContent"></div>
+</div>
+</section>
+
+<section id="detail" class="page">
+<div style="margin-bottom:12px">
+<button type="button" onclick="show('doctor')">← ექიმის სამუშაო სივრცეში დაბრუნება</button>
+</div>
+<h2 id="detailTitle"></h2>
+<div class="panel" id="detailContent"></div>
+</section>
+
+<section id="userRegistrationPanel" class="page" data-roles="admin">
+  <h3 style="margin-top:0">მომხმარებლების მართვა</h3>
+  <p style="color:#667085">ადმინისტრატორს შეუძლია ახალი მომხმარებლის შექმნა და არსებული მომხმარებლის წაშლა.</p>
+
+  <div class="user-form-grid">
+    <div>
+      <label>სახელი და გვარი</label>
+      <input id="newUserName" type="text" placeholder="მაგ. ნინო ბერიძე" style="width:100%;box-sizing:border-box;padding:10px">
+    </div>
+    <div>
+      <label>მომხმარებელი</label>
+      <input id="newUsername" type="text" placeholder="მაგ. n.beridze" autocomplete="off" style="width:100%;box-sizing:border-box;padding:10px">
+    </div>
+    <div>
+      <label>პაროლი</label>
+      <div style="position:relative">
+        <input id="newUserPassword" type="password" placeholder="პაროლი" autocomplete="new-password" style="width:100%;box-sizing:border-box;padding:10px;padding-right:90px">
+        <button type="button" id="toggleNewUserPassword" style="position:absolute;right:6px;top:5px;height:34px;padding:0 10px;border:0;background:transparent;color:#173f68;cursor:pointer" onclick="toggleNewUserPasswordVisibility()">ჩვენება</button>
+      </div>
+    </div>
+    <div>
+      <label>როლი</label>
+      <select id="newUserRole" style="width:100%;box-sizing:border-box;padding:10px">
+        <option value="registrar">რეგისტრატორი</option>
+        <option value="doctor">ექიმი</option>
+        <option value="admin">ადმინისტრატორი</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="user-actions"><button class="primary" type="button" onclick="createPortalUser()">＋ მომხმარებლის დამატება</button></div>
+
+  <div id="createdUsersList" class="user-list"></div>
+</section>
+</main>
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+// Supabase JS client (browser-safe publishable key only).
+// The publishable key is designed for browser use; database access is still controlled by RLS.
+
+
+const key='diabetes_commission_cases';
+
+// V50: cases are now stored in Supabase. localStorage is used only as a temporary
+// in-memory UI cache while the authenticated session is active.
+let cases=[];
+let casesDbLoaded=false;
+
+function normalizeCase(x){
+  return Object.assign({
+    id:'', rowNo:'', letterNo:'', date:'', dob:'', pn:'', address:'', phone:'',
+    surname:'', firstName:'', name:'', icd:'', institution:'', doctor:'', form100Date:'',
+    lantus:'', apidra:'', type:'', glyco:'', note:'', status:'განსახილველი', decision:'',
+    resolutionNote:'', resolutionDateTime:'', history:[], file:'ფაილი არ არის ატვირთული',
+    fileData:'', fileType:'', attachments:[], storagePath:'', resolvedBy:''
+  }, x || {});
+}
+
+function dbCaseToUi(r){
+  return normalizeCase({
+    id:r.id,rowNo:r.row_no||'',letterNo:r.letter_no||'',date:r.case_date||'',dob:r.birth_date||'',pn:r.personal_no||'',
+    address:r.address||'',phone:r.phone||'',surname:r.surname||'',firstName:r.first_name||'',name:((r.surname||'')+' '+(r.first_name||'')).trim(),
+    icd:r.icd||'',institution:r.institution||'',doctor:r.doctor||'',form100Date:r.form100_date||'',lantus:r.lantus||'',apidra:r.apidra||'',
+    type:r.case_type||'I',glyco:r.glyco||'',note:r.note||'',status:r.status||'განსახილველი',decision:r.decision||'',
+    resolutionNote:r.resolution_note||'',resolutionDateTime:r.resolution_date_time?new Date(r.resolution_date_time).toLocaleString('ka-GE'):'',
+    history:Array.isArray(r.history)?r.history:[],file:r.file_name||'ფაილი არ არის ატვირთული',fileData:'',fileType:(r.file_name||'').toLowerCase().endsWith('.pdf')?'application/pdf':'',attachments:Array.isArray(r.attachments)?r.attachments:[],
+    storagePath:r.storage_path||''
+  });
+}
+
+function uiCaseToDb(x, userId){
+  return {
+    row_no:x.rowNo||'',letter_no:x.letterNo||'',case_date:x.date||'',birth_date:x.dob||'',personal_no:x.pn||'',
+    address:x.address||'',phone:x.phone||'',surname:x.surname||'',first_name:x.firstName||'',icd:x.icd||'',institution:x.institution||'',
+    doctor:x.doctor||'',form100_date:x.form100Date||'',lantus:x.lantus||'',apidra:x.apidra||'',case_type:x.type||'',glyco:x.glyco||'',note:x.note||'',
+    status:x.status||'განსახილველი',decision:x.decision||null,resolution_note:x.resolutionNote||null,
+    resolution_date_time:x.resolutionDateTime ? new Date(x.resolutionDateTime).toISOString() : null,
+    history:Array.isArray(x.history)?x.history:[],file_name:x.file||null,storage_path:x.storagePath||null,attachments:Array.isArray(x.attachments)?x.attachments:[],
+    created_by:userId||null,resolved_by:x.resolvedBy||null
+  };
+}
+
+const STORAGE_BUCKET='case-documents';
+
+function safeStorageFileName(name){
+  const base=String(name||'document').split('\\').pop().split('/').pop();
+  const cleaned=base.replace(/[^a-zA-Z0-9._-]+/g,'_').replace(/^\.+/,'');
+  return cleaned||'document';
+}
+
+async function uploadStorageFile(file, folder){
+  const {client,session}=await getLiveSupabaseSession();
+  const path=(folder||session.id)+'/'+crypto.randomUUID()+'-'+safeStorageFileName(file.name);
+  const {error}=await client.storage.from(STORAGE_BUCKET).upload(path,file,{
+    cacheControl:'3600',upsert:false,contentType:file.type||undefined
+  });
+  if(error) throw error;
+  return path;
+}
+
+async function deleteStorageFile(path){
+  if(!path)return;
+  const client=window.getSupabaseClient?.();
+  if(!client)return;
+  const {error}=await client.storage.from(STORAGE_BUCKET).remove([path]);
+  if(error) console.warn('Storage cleanup failed:',error.message);
+}
+
+async function signedStorageUrl(path){
+  if(!path)return '';
+  const client=window.getSupabaseClient?.();
+  if(!client)return '';
+  const {data,error}=await client.storage.from(STORAGE_BUCKET).createSignedUrl(path,3600);
+  if(error){console.warn('Signed URL failed:',path,error.message);return '';}
+  return data?.signedUrl||'';
+}
+
+async function hydrateCaseDocuments(list){
+  for(const x of list){
+    if(x.storagePath){
+      x.fileData=await signedStorageUrl(x.storagePath);
+    }
+    if(Array.isArray(x.attachments)){
+      for(const a of x.attachments){
+        if(a.storagePath) a.url=await signedStorageUrl(a.storagePath);
+      }
+    }
+  }
+  return list;
+}
+
+window.loadCasesFromSupabase=async function loadCasesFromSupabase(){
+  const client=window.getSupabaseClient?.();
+  const session=window.DC_SUPABASE_SESSION;
+  if(!client||!session?.id)return;
+  const {data,error}=await client.from('cases').select('*').order('created_at',{ascending:false});
+  if(error){console.error(error);toast('საქმეების ბაზიდან ჩატვირთვა ვერ მოხერხდა: '+error.message);return;}
+  cases=(data||[]).map(dbCaseToUi);
+  await hydrateCaseDocuments(cases);
+  casesDbLoaded=true;
+  updateDash();
+  if(document.getElementById('caseTable')?.closest('.page.active')) renderCases();
+  if(document.getElementById('doctorContent')?.closest('.page.active')) renderDoctor();
+}
+
+async function getLiveSupabaseSession(){
+  const client=window.getSupabaseClient?.();
+  if(!client) throw new Error('Supabase კავშირი ვერ მოიძებნა.');
+  const {data,error}=await client.auth.getSession();
+  if(error) throw error;
+  if(!data?.session?.user) throw new Error('Supabase Auth session ვადაგასულია ან ვერ მოიძებნა. გთხოვთ, ხელახლა შეხვიდეთ სისტემაში.');
+  const u=data.session.user;
+  const profile=await client.from('profiles').select('id,full_name,role').eq('id',u.id).maybeSingle();
+  if(profile.error) throw profile.error;
+  if(!profile.data) throw new Error('მომხმარებლის პროფილი ვერ მოიძებნა.');
+  const live={id:u.id,email:u.email||'',role:profile.data.role,name:profile.data.full_name||u.email||'',access_token:data.session.access_token};
+  window.DC_SUPABASE_SESSION=live;
+  return {client,session:live};
+}
+
+async function insertCaseToSupabase(x){
+  const {client,session}=await getLiveSupabaseSession();
+  const row=uiCaseToDb(x,session.id);
+  const {data,error}=await client.from('cases').insert(row).select('*').single();
+  if(error) throw error;
+  return dbCaseToUi(data);
+}
+
+async function updateCaseInSupabase(x){
+  const {client,session}=await getLiveSupabaseSession();
+  const row=uiCaseToDb(x,session.id);
+
+  // UPDATE must never replace the original creator of the case.
+  delete row.created_by;
+
+  // Keep the actual resolver as the signed-in user.
+  row.resolved_by=x.resolvedBy||session.id||null;
+
+  const {data,error}=await client.from('cases').update(row).eq('id',x.id).select('*').single();
+  if(error) throw error;
+  return dbCaseToUi(data);
+}
+
+function save(){
+  updateDash();
+}
+
+let selectedDecision='';
+
+
+function show(id){
+ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+ const p=document.getElementById(id);if(!p)return;
+ p.classList.add('active');
+ if(id==='cases')renderCases();
+ if(id==='new' && !editingCaseId) { const title=document.getElementById('newPageTitle'); if(title && title.textContent.startsWith('რედაქტირება')) enterNewCaseMode(); }
+ if(id==='dashboard')updateDash();
+ if(id==='doctor')renderDoctor();
+ if(id==='userRegistrationPanel')renderPortalUsers();
+}
+
+function toast(t){
+ let x=document.getElementById('toast');x.textContent=t;x.style.display='block';
+ setTimeout(()=>x.style.display='none',2200);
+}
+
+function updateDash(){
+ document.getElementById('cAll').textContent=cases.length;
+ document.getElementById('cPending').textContent=cases.filter(x=>x.status==='განსახილველი').length;
+ document.getElementById('cPos').textContent=cases.filter(x=>x.status==='დადებითი').length;
+ document.getElementById('cNeg').textContent=cases.filter(x=>x.status==='უარყოფითი').length;
+ document.getElementById('recent').innerHTML=
+ '<table><tr><th>საქმე</th><th>პაციენტი</th><th>სტატუსი</th><th></th></tr>'+
+ cases.slice(-5).reverse().map(x=>`<tr><td>${x.rowNo||x.id}</td><td>${displayName(x)}</td><td>${badge(x.status)}</td><td><button onclick="detail('${x.id}')">ნახვა</button></td></tr>`).join('')+
+ '</table>';
+}
+
+function displayName(x){return x.name||((x.surname||'')+' '+(x.firstName||'')).trim()||'—'}
+
+function badge(s){
+ let c=s==='დადებითი'?'positive':s==='უარყოფითი'?'negative':'pending';
+ return `<span class="badge ${c}">${s}</span>`;
+}
+
+function renderCases(){
+ let q=(document.getElementById('search')?.value||'').toLowerCase();
+ let arr=cases.filter(x=>[
+   x.id,x.pn,x.name,x.surname,x.firstName,x.decision,x.resolutionNote
+ ].join(' ').toLowerCase().includes(q));
+ document.getElementById('caseTable').innerHTML=
+ '<table><tr><th>საქმე</th><th>პაციენტი</th><th>თარიღი</th><th>რეზოლუცია</th><th>სტატუსი</th><th></th></tr>'+
+ arr.map(x=>`<tr><td>${x.rowNo||x.id}</td><td>${displayName(x)}<br><small>${x.pn}</small></td><td>${x.date||'—'}</td><td>${x.decision||'—'}</td><td>${badge(x.status)}</td><td><div class="row-actions"><button onclick="detail('${x.id}')">გახსნა</button>${(['admin','registrar'].includes(window.portalCurrentRole?.())?`<button type="button" onclick="startEditCase('${x.id}')">რედაქტირება</button>`:'')}</div></td></tr>`).join('')+
+ '</table>';
+}
+
+function csvCell(v){
+  const t=String(v??'');
+  return '"'+t.replace(/"/g,'""')+'"';
+}
+
+function openExcelImport(){
+ const role=window.portalCurrentRole?window.portalCurrentRole():null;
+ if(role!=='admin'&&role!=='registrar'){toast('Excel-დან იმპორტის უფლება არ გაქვთ');return;}
+ const input=document.getElementById('excelImportFile');if(input){input.value='';input.click();}
+}
+
+function normalizeHeader(v){return String(v??'').trim().toLowerCase().replace(/\s+/g,' ').replace(/[№#]/g,'').replace(/\s/g,'');}
+function parseExcelDateValue(v){
+ if(v===null||v===undefined||v==='')return '';
+ if(v instanceof Date && !isNaN(v))return String(v.getDate()).padStart(2,'0')+'/'+String(v.getMonth()+1).padStart(2,'0')+'/'+v.getFullYear();
+ if(typeof v==='number' && window.XLSX?.SSF){
+   const d=window.XLSX.SSF.parse_date_code(v);if(d)return String(d.d).padStart(2,'0')+'/'+String(d.m).padStart(2,'0')+'/'+d.y;
+ }
+ const s=String(v).trim();
+ const m=s.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);if(m)return String(m[1]).padStart(2,'0')+'/'+String(m[2]).padStart(2,'0')+'/'+m[3];
+ return s;
+}
+function validImportedDate(v,notFuture){
+ if(!v)return true;
+ const m=String(v).match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(!m)return false;
+ const d=new Date(Date.UTC(Number(m[3]),Number(m[2])-1,Number(m[1])));
+ if(d.getUTCFullYear()!==Number(m[3])||d.getUTCMonth()!==Number(m[2])-1||d.getUTCDate()!==Number(m[1]))return false;
+ if(notFuture){const n=new Date();const today=Date.UTC(n.getFullYear(),n.getMonth(),n.getDate());if(d.getTime()>today)return false;}
+ return true;
+}
+function importedResolutionIso(v){
+ if(!v)return '';
+ if(v instanceof Date && !isNaN(v))return v.toISOString();
+ const s=String(v).trim();
+ if(/^\d{4}-\d{2}-\d{2}T/.test(s)){const d=new Date(s);return isNaN(d)?'':d.toISOString();}
+ const m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+ if(m){const d=new Date(Number(m[3]),Number(m[2])-1,Number(m[1]),Number(m[5]||0),Number(m[6]||0),Number(m[7]||0));return isNaN(d)?'':d.toISOString();}
+ return '';
+}
+async function importExcelToDatabase(input){
+ const role=window.portalCurrentRole?window.portalCurrentRole():null;
+ if(role!=='admin'&&role!=='registrar'){toast('Excel-დან იმპორტის უფლება არ გაქვთ');return;}
+ const file=input?.files?.[0];if(!file)return;
+ if(!window.XLSX){alert('Excel-ის იმპორტის მოდული ვერ ჩაიტვირთა. შეამოწმეთ ინტერნეტთან კავშირი.');return;}
+ try{
+   const buf=await file.arrayBuffer();
+   const wb=XLSX.read(buf,{type:'array',cellDates:true});
+   const ws=wb.Sheets[wb.SheetNames[0]];
+   const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true});
+   if(!rows.length){alert('Excel ფაილი ცარიელია.');return;}
+   const headers=rows[0].map(normalizeHeader);
+   const find=(...names)=>{for(const n of names){const i=headers.indexOf(normalizeHeader(n));if(i>=0)return i;}return -1;};
+   const c={rowNo:find('№','საქმე','საქმის №'),letterNo:find('წერილი №','წერილი'),date:find('თარიღი'),dob:find('დაბადების თარიღი'),pn:find('პირადი №','პირადი'),address:find('მისამართი'),phone:find('ტელეფონი'),surname:find('გვარი'),firstName:find('სახელი'),icd:find('ICD კოდი','ICD'),institution:find('დაწესებულება'),doctor:find('ექიმი'),form100Date:find('ფორმა №100-ის თარიღი','ფორმა 100-ის თარიღი','ფორმა №100'),lantus:find('ლანტუსი'),apidra:find('აპიდრა'),type:find('ტიპი'),glyco:find('გლიკო%','გლიკო'),note:find('შენიშვნა'),status:find('სტატუსი'),resolutionDateTime:find('რეზოლუციის თარიღი/დრო','რეზოლუციის თარიღი'),decision:find('რეზოლუცია')};
+   if(c.pn<0||c.surname<0||c.firstName<0){alert('Excel-ში აუცილებელი სვეტები ვერ მოიძებნა: პირადი №, გვარი, სახელი.');return;}
+   const dataRows=rows.slice(1).filter(r=>r.some(v=>String(v??'').trim()!==''));
+   if(!dataRows.length){alert('Excel-ში მონაცემების სტრიქონები ვერ მოიძებნა.');return;}
+   const existingPns=new Set(cases.map(x=>String(x.pn||'').trim()).filter(Boolean));
+   const {client}=await getLiveSupabaseSession();
+   const {data:dbRows,error:dbErr}=await client.from('cases').select('row_no,personal_no');
+   if(dbErr)throw dbErr;
+   const existingRows=(dbRows||[]).map(x=>String(x.row_no||''));
+   let maxSeq=(dbRows||[]).reduce((m,x)=>{const z=String(x.row_no||'').match(/(\d+)$/);return Math.max(m,z?Number(z[1]):0);},0);
+   const toInsert=[],skipped=[],invalid=[];
+   for(let n=0;n<dataRows.length;n++){
+     const r=dataRows[n];
+     const get=i=>i>=0?(r[i]??''):'';
+     const pn=String(get(c.pn)).trim(),surname=String(get(c.surname)).trim(),firstName=String(get(c.firstName)).trim();
+     if(!pn&&!surname&&!firstName)continue;
+     if(!pn||!surname||!firstName){skipped.push(n+2);continue;}
+     if(existingPns.has(pn)){skipped.push(n+2);continue;}
+     const dob=parseExcelDateValue(get(c.dob)),form100Date=parseExcelDateValue(get(c.form100Date)),caseDate=parseExcelDateValue(get(c.date));
+     if((dob&&!validImportedDate(dob,true))||(form100Date&&!validImportedDate(form100Date,true))){invalid.push(n+2);continue;}
+     let rowNo=String(get(c.rowNo)).trim();
+     if(!rowNo||existingRows.includes(rowNo)){maxSeq++;rowNo='DC-'+new Date().getFullYear()+'-'+String(maxSeq).padStart(3,'0');}
+     existingRows.push(rowNo);existingPns.add(pn);
+     const statusRaw=String(get(c.status)).trim();
+     const decisionRaw=String(get(c.decision)).trim();
+     const status=['დადებითი','უარყოფითი','განსახილველი'].includes(statusRaw)?statusRaw:(['დადებითი','უარყოფითი'].includes(decisionRaw)?decisionRaw:'განსახილველი');
+     const decision=['დადებითი','უარყოფითი'].includes(decisionRaw)?decisionRaw:(status==='დადებითი'||status==='უარყოფითი'?status:'');
+     const resolutionIso=importedResolutionIso(get(c.resolutionDateTime));
+     toInsert.push(uiCaseToDb({rowNo,letterNo:String(get(c.letterNo)).trim(),date:caseDate,dob,pn,address:String(get(c.address)).trim(),phone:String(get(c.phone)).trim(),surname,firstName,name:(surname+' '+firstName).trim(),icd:String(get(c.icd)).trim(),institution:String(get(c.institution)).trim(),doctor:String(get(c.doctor)).trim(),form100Date,lantus:String(get(c.lantus)).trim(),apidra:String(get(c.apidra)).trim(),type:['I','II'].includes(String(get(c.type)).trim())?String(get(c.type)).trim():'I',glyco:String(get(c.glyco)).trim(),note:String(get(c.note)).trim(),status,decision,resolutionNote:'',resolutionDateTime:resolutionIso,history:['Excel-დან იმპორტირებული — '+new Date().toLocaleString('ka-GE')],file:'ფაილი არ არის ატვირთული',storagePath:'',attachments:[],resolvedBy:null},null));
+   }
+   if(!toInsert.length){alert('იმპორტისთვის ვარგისი ახალი ჩანაწერი ვერ მოიძებნა.\nგამოტოვებული სტრიქონები: '+skipped.length+'\nარასწორი თარიღები: '+invalid.length);return;}
+   const {data,error}=await client.from('cases').insert(toInsert).select('*');
+   if(error)throw error;
+   const imported=(data||[]).map(dbCaseToUi);cases=[...imported,...cases];updateDash();renderCases();
+   alert('Excel-ის იმპორტი დასრულდა.\nდამატებულია: '+imported.length+'\nგამოტოვებულია/დუბლიკატი: '+skipped.length+'\nარასწორი დაბადების/ფორმა №100-ის თარიღი: '+invalid.length);
+ }catch(e){console.error(e);alert('Excel-ის იმპორტი ვერ შესრულდა: '+(e.message||e));}
+ finally{if(input)input.value='';}
+}
+
+function exportCSV(){
+  const headers=['№','წერილი №','თარიღი','დაბადების თარიღი','პირადი №','მისამართი','ტელეფონი','გვარი','სახელი','ICD კოდი','დაწესებულება','ექიმი','ფორმა №100-ის თარიღი','ლანტუსი','აპიდრა','ტიპი','გლიკო%','შენიშვნა','სტატუსი','რეზოლუციის თარიღი/დრო'];
+  const rows=cases.map(x=>[x.rowNo||'',x.letterNo||'',x.date||'',x.dob||'',x.pn||'',x.address||'',x.phone||'',x.surname||'',x.firstName||x.name||'',x.icd||'',x.institution||'',x.doctor||'',x.form100Date||'',x.lantus||'',x.apidra||'',x.type||'',x.glyco||'',x.note||'',x.status||'',x.resolutionDateTime||'']);
+  const csv='\uFEFF'+[headers,...rows].map(r=>r.map(csvCell).join(',')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='diabetes_commission_export_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+  toast('Excel/CSV ფაილი მომზადებულია');
+}
+
+function checkDuplicate(){
+ const pn=document.getElementById('pn').value.trim();
+ const warning=document.getElementById('duplicateWarning');
+ if(!pn){warning.style.display='none';warning.innerHTML='';return}
+ const matches=cases.filter(x=>String(x.pn||'').trim()===pn && x.id!==editingCaseId);
+ if(matches.length){
+   const x=matches[matches.length-1];
+   warning.innerHTML='⚠️ <b>ამ პირადი ნომრით პაციენტზე უკვე არსებობს საქმე.</b><br>'+
+    'არსებული საქმე: <b>'+(x.rowNo||x.id)+'</b> — '+displayName(x)+
+    '<br>სტატუსი: <b>'+x.status+'</b>'+
+    '<br><button type="button" onclick="detail(\''+x.id+'\')">არსებული საქმის ნახვა</button>';
+   warning.style.display='block';
+ }else{
+   warning.style.display='none';warning.innerHTML='';
+ }
+}
+
+function dateMask(el){
+  if(!el)return;
+  let v=el.value.replace(/\D/g,'').slice(0,8);
+  if(v.length>4)v=v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4);
+  else if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);
+  el.value=v;
+  el.setCustomValidity('');
+}
+
+function validateDateField(el){
+  if(!el) return true;
+  el.setCustomValidity('');
+  const v=(el.value||'').trim();
+  if(!v) return true;
+  const m=v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if(!m){
+    el.setCustomValidity('გთხოვთ შეიყვანოთ თარიღი ფორმატით DD/MM/YYYY, მაგალითად 23/05/1983');
+    return false;
+  }
+  const d=Number(m[1]), mo=Number(m[2]), y=Number(m[3]);
+  const dt=new Date(Date.UTC(y,mo-1,d));
+  if(dt.getUTCFullYear()!==y || dt.getUTCMonth()!==mo-1 || dt.getUTCDate()!==d){
+    el.setCustomValidity('ასეთი კალენდარული თარიღი არ არსებობს');
+    return false;
+  }
+  // დაბადების თარიღი და Form №100-ის თარიღი მიმდინარე თარიღზე გვიანი ვერ იქნება.
+  if(el.id==='dob' || el.id==='form100Date'){
+    const now=new Date();
+    const todayUtc=new Date(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()));
+    if(dt>todayUtc){
+      el.setCustomValidity('თარიღი მიმდინარე თარიღზე გვიანი ვერ იქნება');
+      return false;
+    }
+  }
+  return true;
+}
+
+function validateAllDates(){
+  const ids=['date','dob','form100Date'];
+  let ok=true;
+  ids.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && !validateDateField(el)) ok=false;
+  });
+  if(!ok){
+    const first=ids.map(id=>document.getElementById(id)).find(el=>el && el.validationMessage);
+    if(first){ first.reportValidity(); first.focus(); }
+  }
+  return ok;
+}
+
+let editingCaseId=null;
+
+function resetCaseForm(){
+ ['letterNo','date','dob','pn','address','phone','surname','firstName','icd','institution','doctorName','form100Date','lantus','apidra','glyco','note'].forEach(id=>{
+  const e=document.getElementById(id);if(e)e.value='';
+ });
+ const t=document.getElementById('type'); if(t)t.value='I';
+ const f=document.getElementById('file'); if(f)f.value='';
+ const preview=document.getElementById('uploadPreview'); if(preview)preview.style.display='none';
+ const warning=document.getElementById('duplicateWarning'); if(warning){warning.style.display='none';warning.innerHTML='';}
+}
+
+function enterNewCaseMode(){
+ editingCaseId=null;
+ resetCaseForm();
+ const title=document.getElementById('newPageTitle'); if(title)title.textContent='ახალი განცხადება';
+ const save=document.getElementById('saveCaseBtn'); if(save){save.textContent='განაცხადის რეგისტრაცია';save.onclick=addCase;}
+ const cancel=document.getElementById('cancelEditBtn'); if(cancel)cancel.style.display='none';
+}
+
+function startEditCase(id){
+ const role=window.portalCurrentRole?window.portalCurrentRole():null;
+ if(role!=='admin'&&role!=='registrar'){toast('რედაქტირების უფლება არ გაქვთ');return;}
+ const x=cases.find(a=>a.id===id);
+ if(!x){toast('საქმე ვერ მოიძებნა');return;}
+ editingCaseId=id;
+ const vals={letterNo:x.letterNo,date:x.date==='არ არის მითითებული'?'':x.date,dob:x.dob,pn:x.pn,address:x.address,phone:x.phone,surname:x.surname,firstName:x.firstName,icd:x.icd,institution:x.institution,doctorName:x.doctor,form100Date:x.form100Date,lantus:x.lantus,apidra:x.apidra,glyco:x.glyco,note:x.note};
+ Object.entries(vals).forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.value=v||'';});
+ const type=document.getElementById('type'); if(type)type.value=x.type||'I';
+ const title=document.getElementById('newPageTitle'); if(title)title.textContent='რედაქტირება — '+(x.rowNo||x.id);
+ const save=document.getElementById('saveCaseBtn'); if(save){save.textContent='ცვლილებების შენახვა';save.onclick=saveEditedCase;}
+ const cancel=document.getElementById('cancelEditBtn'); if(cancel)cancel.style.display='inline-block';
+ const file=document.getElementById('file'); if(file)file.value='';
+ const warning=document.getElementById('duplicateWarning'); if(warning){warning.style.display='none';warning.innerHTML='';}
+ show('new');
+}
+
+function cancelEditCase(){
+ enterNewCaseMode();
+ show('cases');
+}
+
+function collectFormCase(base){
+ return {
+  ...base,
+  letterNo:document.getElementById('letterNo').value.trim(),
+  date:document.getElementById('date').value||'',
+  dob:document.getElementById('dob').value,
+  pn:document.getElementById('pn').value.trim(),
+  address:document.getElementById('address').value.trim(),
+  phone:document.getElementById('phone').value.trim(),
+  surname:document.getElementById('surname').value.trim(),
+  firstName:document.getElementById('firstName').value.trim(),
+  name:(document.getElementById('surname').value.trim()+' '+document.getElementById('firstName').value.trim()).trim(),
+  icd:document.getElementById('icd').value.trim(),
+  institution:document.getElementById('institution').value.trim(),
+  doctor:document.getElementById('doctorName').value.trim(),
+  form100Date:document.getElementById('form100Date').value,
+  lantus:document.getElementById('lantus').value.trim(),
+  apidra:document.getElementById('apidra').value.trim(),
+  type:document.getElementById('type').value,
+  glyco:document.getElementById('glyco').value.trim(),
+  note:document.getElementById('note').value.trim()
+ };
+}
+
+async function addCase(){
+ const role=window.portalCurrentRole?window.portalCurrentRole():null;
+ if(role!=='registrar'&&role!=='admin'){alert('საქმის რეგისტრაციის უფლება აქვს მხოლოდ რეგისტრატორს ან ადმინისტრატორს.');return;}
+ const attachedFileInput=document.getElementById('file');
+ if(!attachedFileInput?.files?.length){alert('საქმის შესანახად აუცილებელია დოკუმენტის/PDF ფაილის მიბმა.');return;}
+ if(!validateAllDates())return;
+ const pn=document.getElementById('pn').value.trim(), surname=document.getElementById('surname').value.trim(), firstName=document.getElementById('firstName').value.trim();
+ if(!surname||!firstName||!pn){toast('გვარი, სახელი და პირადი ნომერი აუცილებელია');return;}
+ if(cases.some(x=>String(x.pn||'').trim()===pn && x.id!==editingCaseId)){toast('ამ პირადი ნომრით საქმე უკვე არსებობს');checkDuplicate();return;}
+ const {client:seqClient}=await getLiveSupabaseSession();
+ const {data:existingCaseNumbers,error:seqError}=await seqClient.from('cases').select('row_no');
+ if(seqError){toast('საქმის ნომრის გენერირება ვერ მოხერხდა: '+seqError.message);return;}
+ const nextSeq=(existingCaseNumbers||[]).reduce((m,c)=>{const z=String(c.row_no||'').match(/(\d+)$/);return Math.max(m,z?Number(z[1]):0);},0)+1;
+ const rowNo='DC-'+new Date().getFullYear()+'-'+String(nextSeq).padStart(3,'0');
+ const f=attachedFileInput.files[0];
+ let storagePath='';
+ try{const {session}=await getLiveSupabaseSession();storagePath=await uploadStorageFile(f,session.id);}catch(e){console.error(e);alert('დოკუმენტის Supabase Storage-ში ატვირთვა ვერ მოხერხდა: '+(e.message||e));return;}
+ const newCase={...collectFormCase({}),rowNo,file:f.name,fileData:'',fileType:f.type||'',storagePath,status:'განსახილველი',decision:'',resolutionNote:'',resolutionDateTime:'',resolvedBy:null,history:['საქმე შექმნილია — '+new Date().toLocaleString('ka-GE')]};
+ try{
+   const savedCase=await insertCaseToSupabase(newCase);savedCase.fileType=f.type||'';savedCase.fileData=await signedStorageUrl(savedCase.storagePath);cases.unshift(savedCase);toast('საქმე შეიქმნა და დოკუმენტი უსაფრთხოდ შეინახა: '+(savedCase.rowNo||rowNo));
+ }catch(e){console.error(e);await deleteStorageFile(storagePath);alert('საქმის ბაზაში შენახვა ვერ მოხერხდა: '+(e.message||e));return;}
+ enterNewCaseMode();show('cases');
+}
+
+async function saveEditedCase(){
+ const role=window.portalCurrentRole?window.portalCurrentRole():null;
+ if(role!=='registrar'&&role!=='admin'){alert('რედაქტირების უფლება აქვს მხოლოდ რეგისტრატორს ან ადმინისტრატორს.');return;}
+ const id=editingCaseId, old=cases.find(a=>a.id===id); if(!old){toast('საქმე ვერ მოიძებნა');return;}
+ if(!validateAllDates())return;
+ const pn=document.getElementById('pn').value.trim(),surname=document.getElementById('surname').value.trim(),firstName=document.getElementById('firstName').value.trim();
+ if(!surname||!firstName||!pn){toast('გვარი, სახელი და პირადი ნომერი აუცილებელია');return;}
+ if(cases.some(x=>String(x.pn||'').trim()===pn && x.id!==id)){toast('ამ პირადი ნომრით სხვა საქმე უკვე არსებობს');checkDuplicate();return;}
+ let updated=collectFormCase({...old});
+ const f=document.getElementById('file')?.files?.[0];
+ let newStoragePath=old.storagePath||'', oldStoragePath=old.storagePath||'';
+ try{
+   if(f){
+     const {session}=await getLiveSupabaseSession();newStoragePath=await uploadStorageFile(f,session.id);
+     updated.file=f.name;updated.fileType=f.type||'';updated.storagePath=newStoragePath;
+   }
+   updated.history=[...(Array.isArray(old.history)?old.history:[]),new Date().toLocaleString('ka-GE')+' — მონაცემები რედაქტირებულია'];
+   const saved=await updateCaseInSupabase(updated);
+   saved.fileData=f?await signedStorageUrl(newStoragePath):old.fileData;
+   saved.fileType=f?(f.type||''):old.fileType;
+   const i=cases.findIndex(a=>a.id===id);if(i>=0)cases[i]=saved;
+   if(f && oldStoragePath && oldStoragePath!==newStoragePath)await deleteStorageFile(oldStoragePath);
+   toast('ცვლილებები შენახულია');enterNewCaseMode();show('cases');
+ }catch(e){
+   console.error(e);if(f && newStoragePath && newStoragePath!==oldStoragePath)await deleteStorageFile(newStoragePath);
+   alert('ცვლილებების შენახვა ვერ მოხერხდა: '+(e.message||e));
+ }
+}
+
+function openDoctorCase(id){detail(id,true)}
+
+async function refreshDoctorCases(){
+  try{
+    await loadCasesFromSupabase();
+    renderDoctor();
+    toast("განახლებულია");
+  }catch(e){
+    console.error(e);
+    toast("საქმეების განახლება ვერ მოხერხდა: "+(e.message||e));
+  }
+}
+
+function renderDoctor(){
+ const el=document.getElementById('doctorContent');
+ if(!el)return;
+ const arr=cases.filter(x=>x.status==='განსახილველი');
+ let content='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px">'+
+ '<p class="muted" style="margin:0">ყველა განსახილველი საქმე აქ ჩანს. წინასწარ კონკრეტულ ექიმზე გადანაწილება არ ხდება.</p>'+
+ '<button type="button" onclick="refreshDoctorCases()">↻ განახლება</button></div>';
+
+ if(arr.length){
+  content+='<table><tr><th>საქმე</th><th>პაციენტი</th><th>პირადი №</th><th>შემოტანის თარიღი</th><th>სტატუსი</th><th></th></tr>';
+  content+=arr.map(x=>`<tr>
+   <td>${x.rowNo||x.id}</td><td>${displayName(x)}</td><td>${x.pn||'—'}</td><td>${x.date||'—'}</td>
+   <td>${badge(x.status)}</td><td><button type="button" class="primary" onclick="openDoctorCase('${x.id}')">განხილვა</button></td>
+  </tr>`).join('');
+  content+='</table>';
+ }else{
+  content+='<div class="panel" style="margin-top:12px"><b>განსახილველი საქმე არ არის.</b><br><span class="muted">ახალი საქმეების დამატების შემდეგ ისინი აქ ავტომატურად გამოჩნდება.</span></div>';
+ }
+ el.innerHTML=content;
+}
+
+function openDoctorCase(id){
+ const x=cases.find(c=>c.id===id);
+ if(!x){toast('საქმე ვერ მოიძებნა');return}
+ detail(id,true);
+}
+
+function detail(id,fromDoctor=false){
+ const x=cases.find(a=>a.id===id);if(!x){toast('საქმე ვერ მოიძებნა');return}
+ show('detail');
+ document.getElementById('detailTitle').innerHTML='საქმე '+(x.rowNo||x.id)+(fromDoctor?'':' <button type="button" style="margin-left:10px" onclick="startEditCase(\''+x.id+'\')">რედაქტირება</button>');
+ document.getElementById('detailContent').innerHTML=`
+ <div class="grid">
+  <div><b>№</b><br>${x.rowNo||'—'}</div><div><b>წერილი №</b><br>${x.letterNo||'—'}</div>
+  <div><b>თარიღი</b><br>${x.date||'—'}</div><div><b>დაბადების თარიღი</b><br>${x.dob||'—'}</div>
+  <div><b>პირადი №</b><br>${x.pn||'—'}</div><div><b>მისამართი</b><br>${x.address||'—'}</div>
+  <div><b>ტელეფონი</b><br>${x.phone||'—'}</div><div><b>გვარი</b><br>${x.surname||'—'}</div>
+  <div><b>სახელი</b><br>${x.firstName||x.name||'—'}</div><div><b>ICD კოდი</b><br>${x.icd||'—'}</div>
+  <div><b>დაწესებულება</b><br>${x.institution||'—'}</div><div><b>ექიმი</b><br>${x.doctor||'არ იკითხება / არ არის მითითებული'}</div><div><b>Form №100-ის თარიღი</b><br>${x.form100Date||'—'}</div>
+  <div><b>ლანტუსი</b><br>${x.lantus||'—'}</div><div><b>აპიდრა</b><br>${x.apidra||'—'}</div>
+  <div><b>ტიპი</b><br>${x.type||'—'}</div><div><b>გლიკო%</b><br>${x.glyco||'—'}</div>
+  <div class="full"><b>შენიშვნა</b><br>${x.note||'—'}</div>
+  <div class="full"><b>Form №100 / დოკუმენტი</b>
+   ${x.fileData ? (String(x.fileType).toLowerCase().includes('pdf') || /\.pdf$/i.test(x.file) ? `<iframe src="${x.fileData}" style="width:100%;height:650px;border:1px solid #d9dee8;border-radius:10px;margin-top:10px;background:white"></iframe>` : `<img src="${x.fileData}" style="display:block;max-width:100%;max-height:650px;margin-top:10px;border:1px solid #d9dee8;border-radius:10px" alt="დოკუმენტი">`) : `<div class="viewer">📄 ${x.file||'ფაილი არ არის ატვირთული'}<br><small>ამ საქმეში ფაილის რეალური მონაცემი არ არის შენახული.</small></div>`}
+  </div>
+  <div class="full"><b>მიბმული ფაილები</b>
+   ${x.fileData ? `<div style="margin-top:8px">📄 ${x.file||'ძირითადი დოკუმენტი'}</div>` : ''}
+   ${(Array.isArray(x.attachments)?x.attachments:[]).map((a,i)=>`<div style="margin-top:6px">📎 ${a.url?`<a class="pdf-link" href="${a.url}" target="_blank" rel="noopener">${a.name||('დამატებითი ფაილი '+(i+1))}</a>`:(a.name||('დამატებითი ფაილი '+(i+1)))}</div>`).join('')}
+   ${!fromDoctor ? `<button type="button" style="margin-top:10px" onclick="openAdditionalFile('${x.id}')">＋ ფაილის დამატება</button>` : ''}
+  </div>
+  <div class="full"><b>სტატუსი:</b> ${badge(x.status)}
+   ${x.decision?'<p><b>რეზოლუცია:</b> '+x.decision+'</p>':''}
+   ${x.resolutionNote?'<p><b>რეზოლუციის შენიშვნა:</b> '+x.resolutionNote+'</p>':''}
+   ${x.resolutionDateTime?'<p><b>რეზოლუციის თარიღი/დრო:</b> '+x.resolutionDateTime+'</p>':''}
+  </div>
+  <div class="full"><b>ისტორია</b><ul>${x.history.map(h=>'<li>'+h+'</li>').join('')}</ul></div>
+ </div>
+ ${x.status==='განსახილველი'?`
+ <div class="resolution-box">
+  <h3>რეზოლუცია</h3>
+  <div class="resolution-buttons">
+   <button id="posBtn" class="success" onclick="selectDecision('დადებითი')">✓ დადებითი</button>
+   <button id="negBtn" class="danger" onclick="selectDecision('უარყოფითი')">✕ უარყოფითი</button>
+  </div>
+  <label>შენიშვნა</label>
+  <textarea id="resolutionNote" class="resolution-note" placeholder="შენიშვნა (საჭიროების შემთხვევაში)"></textarea>
+  <button class="primary" style="margin-top:12px" onclick="submitResolution('${x.id}')">რეზოლუციის დაფიქსირება</button>
+ </div>`:''}`;
+}
+
+function selectDecision(d){
+ selectedDecision=d;
+ const p=document.getElementById('posBtn'),n=document.getElementById('negBtn');
+ if(p)p.style.outline=d==='დადებითი'?'3px solid #173b63':'';
+ if(n)n.style.outline=d==='უარყოფითი'?'3px solid #173b63':'';
+}
+
+async function submitResolution(id){
+ const x=cases.find(a=>a.id===id);if(!x)return;
+ if(window.portalCurrentRole && window.portalCurrentRole()!=='doctor' && window.portalCurrentRole()!=='admin'){toast('რეზოლუციის დაფიქსირების უფლება არ გაქვთ');return}
+ if(!selectedDecision){toast('გთხოვთ აირჩიოთ დადებითი ან უარყოფითი რეზოლუცია');return}
+
+ const now=new Date();
+ const resolutionIso=now.toISOString();
+ const resolutionDisplay=now.toLocaleString('ka-GE');
+ const resolutionNote=document.getElementById('resolutionNote').value.trim();
+ const resolvedBy=window.DC_SUPABASE_SESSION?.id||null;
+ const updatedCase={
+   ...x,
+   status:selectedDecision,
+   decision:selectedDecision,
+   resolutionNote,
+   resolutionDateTime:resolutionIso,
+   resolvedBy,
+   history:[...(Array.isArray(x.history)?x.history:[]), resolutionDisplay+' — ექიმმა დააფიქსირა '+selectedDecision+' რეზოლუცია'+(resolutionNote?' — '+resolutionNote:'')]
+ };
+
+ try{
+   const saved=await updateCaseInSupabase(updatedCase);
+   const i=cases.findIndex(a=>a.id===id);
+   if(i>=0){
+     saved.fileData=x.fileData;
+     saved.fileType=x.fileType;
+     cases[i]=saved;
+   }
+
+   // Re-read from Supabase so the pending list is immediately synchronized.
+   selectedDecision='';
+   await loadCasesFromSupabase();
+   show('doctor');
+   toast('რეზოლუცია დაფიქსირდა');
+ }catch(e){
+   console.error(e);toast('რეზოლუციის შენახვა ვერ მოხერხდა: '+(e.message||e));
+ }
+}
+
+updateDash();
+</script>
+
+<script>
+(function(){
+ const input=document.getElementById('file');
+ const box=document.getElementById('uploadPreview');
+ const pdf=document.getElementById('uploadPdfFrame');
+ const img=document.getElementById('uploadImagePreview');
+ if(!input||!box||!pdf||!img)return;
+ input.addEventListener('change',function(){
+   const f=this.files&&this.files[0];
+   if(!f){box.style.display='none';pdf.removeAttribute('src');img.removeAttribute('src');return;}
+   const url=URL.createObjectURL(f);
+   box.style.display='block';
+   if(f.type==='application/pdf'||/\.pdf$/i.test(f.name)){
+     pdf.style.display='block'; img.style.display='none'; pdf.src=url;
+   }else if(/^image\//i.test(f.type)||/\.(jpg|jpeg|png)$/i.test(f.name)){
+     pdf.style.display='none'; img.style.display='block'; img.src=url;
+   }else{
+     box.style.display='none';
+   }
+ });
+})();
+</script>
+
+<div id="additionalFileBox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#fff;padding:20px;border-radius:14px;width:min(520px,92vw)">
+    <h3 style="margin-top:0">ფაილის დამატება</h3>
+    <input id="additionalFileInput" type="file" accept="application/pdf,.pdf,.jpg,.jpeg,.png">
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+      <button type="button" onclick="closeAdditionalFile()">გაუქმება</button>
+      <button type="button" onclick="saveAdditionalFile()">დამატება</button>
+    </div>
+  </div>
+</div>
+<script>
+let additionalCaseId=null;
+function openAdditionalFile(caseId){
+ additionalCaseId=caseId;
+ const b=document.getElementById('additionalFileBox'),i=document.getElementById('additionalFileInput');
+ if(i)i.value=''; if(b)b.style.display='flex';
+}
+function closeAdditionalFile(){
+ const b=document.getElementById('additionalFileBox'); if(b)b.style.display='none'; additionalCaseId=null;
+}
+async function saveAdditionalFile(){
+ const input=document.getElementById('additionalFileInput');
+ if(!additionalCaseId||!input||!input.files.length){alert('აირჩიეთ ფაილი.');return;}
+ const file=input.files[0];
+ try{
+  const {session}=await getLiveSupabaseSession();
+  const storagePath=await uploadStorageFile(file,session.id+'/'+additionalCaseId+'/attachments');
+  const c=cases.find(x=>String(x.id)===String(additionalCaseId));
+  if(!c){await deleteStorageFile(storagePath);alert('საქმე ვერ მოიძებნა.');return;}
+  c.attachments=Array.isArray(c.attachments)?c.attachments:[];
+  const attachment={name:file.name,type:file.type,storagePath,addedAt:new Date().toLocaleString('ka-GE')};
+  c.attachments.push(attachment);
+  try{
+    const saved=await updateCaseInSupabase(c);
+    const i=cases.findIndex(x=>String(x.id)===String(c.id));
+    if(i>=0){cases[i]=saved;cases[i].fileData=c.fileData;cases[i].fileType=c.fileType;await hydrateCaseDocuments([cases[i]]);}
+  }catch(e){
+    await deleteStorageFile(storagePath);
+    throw e;
+  }
+  closeAdditionalFile();
+  toast('ფაილი უსაფრთხოდ დაემატა საქმეს.');
+  detail(c.id,false);
+ }catch(e){
+  console.error(e);
+  alert('ფაილის დამატება ვერ მოხერხდა: '+(e.message||e));
+ }
+}
+</script>
+
+<script id="supabase-config-fixed">
+// Supabase production connection — Publishable key only.
+window.DC_SUPABASE_CONFIG = {
+  url: 'https://dgbeyjnntwcktmxxstu.supabase.co',
+  publishableKey: 'sb_publishable_pacH5z3iAmUnZoscWx-V8A_gwS_f-g_'
+};
+</script>
+
+<script id="supabase-auth-v48">
+(function(){
+  const CFG_KEY='diabetes_supabase_browser_config_v1';
+  const SESSION_KEY='diabetes_supabase_session_v1';
+
+  function getConfig(){
+    let saved={};
+    try{ saved=JSON.parse(localStorage.getItem(CFG_KEY)||'{}')||{}; }catch(e){}
+    const base=window.DC_SUPABASE_CONFIG||{};
+    return {url:saved.url||base.url||'',publishableKey:saved.publishableKey||base.publishableKey||''};
+  }
+  function saveConfig(){
+    const url=(window.DC_SUPABASE_CONFIG?.url||'').trim();
+    const key=(document.getElementById('supabasePublishableKey')?.value||'').trim();
+    if(!key){
+      document.getElementById('loginError').textContent='ჩასვი Supabase Publishable key.';
+      return;
+    }
+    localStorage.setItem(CFG_KEY,JSON.stringify({url,publishableKey:key}));
+    window.DC_SUPABASE_CONFIG={url,publishableKey:key};
+    document.getElementById('supabaseSetup').style.display='none';
+    document.getElementById('loginError').textContent='';
+    initClient(true);
+    alert('Supabase კავშირი შენახულია. ახლა შეგიძლია შეხვიდე სისტემაში.');
+  }
+  window.saveSupabaseBrowserConfig=saveConfig;
+
+  function initClient(force){
+    const c=getConfig();
+    if(!c.url||!c.publishableKey||!window.supabase?.createClient) return null;
+    try{
+      if(!force && window.DC_SUPABASE_CLIENT) return window.DC_SUPABASE_CLIENT;
+      window.DC_SUPABASE_CLIENT=window.supabase.createClient(c.url,c.publishableKey,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:true}});
+      return window.DC_SUPABASE_CLIENT;
+    }catch(e){
+      console.error(e);
+      return null;
+    }
+  }
+  window.getSupabaseClient=initClient;
+
+  function showSetup(){
+    const box=document.getElementById('supabaseSetup');
+    const input=document.getElementById('supabasePublishableKey');
+    if(box)box.style.display='block';
+    const c=getConfig();
+    if(input && c.publishableKey) input.value=c.publishableKey;
+  }
+
+  function saveBrowserSession(user,profile){
+    const s={id:user.id,email:user.email||'',role:profile.role,name:profile.full_name||user.email||''};
+    localStorage.setItem(SESSION_KEY,JSON.stringify(s));
+    return s;
+  }
+  function clearBrowserSession(){localStorage.removeItem(SESSION_KEY);window.DC_SUPABASE_SESSION=null;}
+  function getBrowserSession(){try{return JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch(e){return null}}
+
+  async function getProfile(client,userId){
+    const {data,error}=await client.from('profiles').select('id,full_name,role').eq('id',userId).maybeSingle();
+    if(error) throw error;
+    return data;
+  }
+
+  window.portalLogin=async function(){
+    const email=(document.getElementById('loginUser').value||'').trim().toLowerCase();
+    const password=document.getElementById('loginPass').value||'';
+    const err=document.getElementById('loginError');
+    err.textContent='';
+    if(!email||!password){err.textContent='შეიყვანე ელფოსტა და პაროლი.';return;}
+    const client=initClient(false);
+    if(!client){
+      err.textContent='Supabase კავშირი ჯერ არ არის დაყენებული.';
+      showSetup();
+      return;
+    }
+    const btn=document.querySelector('#loginScreen button[onclick="portalLogin()"]');
+    if(btn){btn.disabled=true;btn.textContent='მიმდინარეობს...';}
+    try{
+      const {data,error}=await client.auth.signInWithPassword({email,password});
+      if(error) throw error;
+      const user=data.user;
+      const profile=await getProfile(client,user.id);
+      if(!profile){
+        await client.auth.signOut();
+        throw new Error('მომხმარებლის პროფილი/როლი ვერ მოიძებნა.');
+      }
+      const s=saveBrowserSession(user,profile);
+      // Remembering the password is intentionally kept out of the production auth flow.
+      // Supabase persists the authenticated session itself.
+      applySupabaseSession(s);
+      if(window.rememberSuccessfulLogin) window.rememberSuccessfulLogin({username:email,name:s.name,role:s.role});
+      // Load the real cases BEFORE rendering the first page. This prevents the doctor
+      // workspace from briefly rendering an empty local array after login.
+      if(window.loadCasesFromSupabase) await window.loadCasesFromSupabase();
+      if(typeof show==='function') show(s.role==='doctor'?'doctor':s.role==='registrar'?'new':'dashboard');
+      if(s.role==='doctor' && typeof renderDoctor==='function') renderDoctor();
+    }catch(e){
+      console.error(e);
+      err.textContent=e.message||'შესვლა ვერ მოხერხდა.';
+    }finally{
+      if(btn){btn.disabled=false;btn.textContent='შესვლა';}
+    }
+  };
+
+  function applySupabaseSession(s){
+    const l=document.getElementById('loginScreen');
+    if(!s){ if(l)l.style.display='flex'; return; }
+    if(l)l.style.display='none';
+    const role=s.role;
+    const label=document.getElementById('roleLabel'); if(label)label.textContent=s.name||s.email||'';
+    document.body.dataset.role=role;
+    document.querySelectorAll('[data-roles]').forEach(function(e){
+      e.style.display=(e.dataset.roles||'').split(/\s+/).includes(role)?'':'none';
+    });
+    if(role==='doctor'){
+      document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+      const dp=document.getElementById('doctor'); if(dp)dp.classList.add('active');
+    }
+  }
+  window.applySupabaseSession=applySupabaseSession;
+  window.portalCurrentRole=function(){const s=getBrowserSession();return s?s.role:null;};
+  // Keep UI/session cache synchronized with Supabase token refreshes.
+  document.addEventListener('DOMContentLoaded',function(){
+    const c=initClient(false);
+    if(c) c.auth.onAuthStateChange(function(event,session){
+      if(session?.user){ window.DC_SUPABASE_SESSION=window.DC_SUPABASE_SESSION||{}; window.DC_SUPABASE_SESSION.id=session.user.id; window.DC_SUPABASE_SESSION.email=session.user.email||''; window.DC_SUPABASE_SESSION.access_token=session.access_token; }
+      else if(event==='SIGNED_OUT'){ clearBrowserSession(); }
+    });
+  });
+
+  window.portalLogout=async function(){
+    const client=initClient(false);
+    try{if(client) await client.auth.signOut();}catch(e){console.error(e)}
+    clearBrowserSession();
+    location.reload();
+  };
+
+  async function restore(){
+    const login=document.getElementById('loginScreen');
+    if(login) login.style.display='flex';
+    const client=initClient(false);
+    if(!client){
+      localStorage.removeItem('diabetes_demo_session');
+      const old=document.getElementById('supabaseSetup');
+      if(old && !getConfig().publishableKey) old.style.display='block';
+      return;
+    }
+    try{
+      const {data:{session}}=await client.auth.getSession();
+      if(!session?.user){clearBrowserSession();return;}
+      const profile=await getProfile(client,session.user.id);
+      if(!profile){await client.auth.signOut();clearBrowserSession();return;}
+      const s=saveBrowserSession(session.user,profile);
+      applySupabaseSession(s);
+      // Restore the session and load cases before showing the first page.
+      if(window.loadCasesFromSupabase) await window.loadCasesFromSupabase();
+      if(typeof show==='function')show(s.role==='doctor'?'doctor':s.role==='registrar'?'new':'dashboard');
+      if(s.role==='doctor' && typeof renderDoctor==='function') renderDoctor();
+    }catch(e){
+      console.error(e);
+      clearBrowserSession();
+      const err=document.getElementById('loginError');
+      if(err)err.textContent='Supabase პროფილის წაკითხვა ვერ მოხერხდა: '+(e.message||'უცნობი შეცდომა');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    const input=document.getElementById('supabasePublishableKey');
+    const c=getConfig();
+    if(input && c.publishableKey) input.value=c.publishableKey;
+    restore();
+  });
+})();
+</script>
+
+<script id="login-enter-fix">
+(function(){
+ document.addEventListener('DOMContentLoaded',function(){
+   const input=document.getElementById('loginPass');
+   if(input) input.addEventListener('keydown',function(e){
+     if(e.key==='Enter'){e.preventDefault();window.portalLogin&&window.portalLogin();}
+   });
+ });
+})();
+</script>
+
+<script id="legacy-local-auth-disabled">
+// Legacy localStorage demo authentication is intentionally disabled in V48.
+// Supabase Auth implementation above owns portalLogin/portalLogout/portalCurrentRole.
+(function(){
+  window.getUsers=window.getUsers||function(){return [];};
+  window.saveUsers=window.saveUsers||function(){};
+  window.createPortalUser=window.createPortalUser||function(){alert('მომხმარებლების შექმნა ამ ეტაპზე ხდება Supabase-ში.');};
+})();
+</script>
+
+
+
+<script>
+async function createPortalUser(){
+  if(window.portalCurrentRole && window.portalCurrentRole()!=='admin'){
+    alert('მომხმარებლის შექმნის უფლება აქვს მხოლოდ ადმინისტრატორს.'); return;
+  }
+  const name=(document.getElementById('newUserName').value||'').trim();
+  const username=(document.getElementById('newUsername').value||'').trim().toLowerCase();
+  const password=document.getElementById('newUserPassword').value||'';
+  const role=document.getElementById('newUserRole').value;
+  if(!name||!username||!password){ alert('გთხოვთ, შეავსოთ ყველა ველი.'); return; }
+  const cfg=window.DC_SUPABASE_CONFIG||{};
+  const functionUrl=(window.DC_USER_ADMIN_CONFIG?.createUserUrl||'').trim();
+  if(!functionUrl){
+    alert('მომხმარებლის შექმნის სერვერი ჯერ არ არის დაკავშირებული.\n\nმომხმარებლების ბაზა უკვე არსებობს Supabase-ში (auth.users + profiles). შემდეგ ეტაპზე დავუკავშირებთ უსაფრთხო Edge Function-ს, რათა აქედანვე შეძლო ექიმისა და რეგისტრატორის შექმნა.');
+    return;
+  }
+  try{
+    const {client,session}=await getLiveSupabaseSession();
+    const {data:{session:authSession}}=await client.auth.getSession();
+    if(!authSession) throw new Error('Supabase Auth session ვერ მოიძებნა.');
+    const r=await fetch(functionUrl,{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.publishableKey||'', 'Authorization':'Bearer '+authSession.access_token},body:JSON.stringify({email:username, password, full_name:name, role})});
+    const body=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(body.error||body.message||('HTTP '+r.status));
+    document.getElementById('newUserName').value='';
+    document.getElementById('newUsername').value='';
+    document.getElementById('newUserPassword').value='';
+    await renderPortalUsers();
+    alert('მომხმარებელი წარმატებით დაემატა.');
+  }catch(e){ alert('მომხმარებლის შექმნა ვერ მოხერხდა: '+(e.message||e)); }
+}
+
+function toggleNewUserPasswordVisibility(){
+  const input=document.getElementById('newUserPassword');
+  const btn=document.getElementById('toggleNewUserPassword');
+  if(!input)return;
+  const show=input.type==='password';
+  input.type=show?'text':'password';
+  if(btn)btn.textContent=show?'დამალვა':'ჩვენება';
+}
+
+async function renderPortalUsers(){
+  const box=document.getElementById('createdUsersList');
+  if(!box)return;
+  box.innerHTML='<b>რეგისტრირებული მომხმარებლები</b><div style="padding:12px 0;color:#667085">იტვირთება...</div>';
+  try{
+    const {client}=await getLiveSupabaseSession();
+    const {data,error}=await client.from('profiles').select('id,full_name,role,created_at').order('created_at',{ascending:true});
+    if(error) throw error;
+    const roleName={admin:'ადმინისტრატორი',registrar:'რეგისტრატორი',doctor:'ექიმი'};
+    if(!data?.length){ box.innerHTML='<b>რეგისტრირებული მომხმარებლები</b><div style="padding:12px 0;color:#667085">მომხმარებლები ჯერ არ არის.</div>'; return; }
+    box.innerHTML='<b>რეგისტრირებული მომხმარებლები</b>'+data.map(u=>
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #eee">'+
+      '<span><b>'+escapeHtml(u.full_name||'—')+'</b> — '+roleName[u.role]+'<br><small style="color:#667085">ID: '+u.id+'</small></span>'+
+      (u.role==='admin' ? '<span style="color:#667085">ადმინისტრატორი</span>' : '<span style="color:#667085">Supabase Auth</span>')+
+      '</div>'
+    ).join('');
+  }catch(e){
+    box.innerHTML='<b>რეგისტრირებული მომხმარებლები</b><div style="padding:12px 0;color:#b42318">მომხმარებლების ბაზის წაკითხვა ვერ მოხერხდა: '+escapeHtml(e.message||String(e))+'</div>';
+  }
+}
+
+function escapeHtml(v){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+
+document.addEventListener('DOMContentLoaded',function(){
+  setTimeout(function(){
+    renderPortalUsers();
+    const role=window.portalCurrentRole ? window.portalCurrentRole() : null;
+    const panel=document.getElementById('userRegistrationPanel');
+    if(panel) panel.style.display='';
+  },100);
+});
+</script>
+
+
+<script id="collapsible-menu-script">
+(function(){
+ function closeMenu(){document.body.classList.add('menu-collapsed');var b=document.getElementById('sideMenuToggle');if(b)b.setAttribute('aria-expanded','false');}
+ function openMenu(){document.body.classList.remove('menu-collapsed');var b=document.getElementById('sideMenuToggle');if(b)b.setAttribute('aria-expanded','true');}
+ function toggleMenu(){document.body.classList.contains('menu-collapsed')?openMenu():closeMenu();}
+ function initMenu(){
+  if(!document.getElementById('sideMenuToggle')){
+   var b=document.createElement('button');b.id='sideMenuToggle';b.type='button';b.textContent='☰ მენიუ';b.setAttribute('aria-expanded','false');b.onclick=toggleMenu;document.body.appendChild(b);
+  }
+  closeMenu();
+  document.querySelectorAll('.sidebar button,.sidebar a').forEach(function(el){
+   if(el.id!=='sideMenuToggle') el.addEventListener('click',function(){setTimeout(closeMenu,100);});
+  });
+ }
+ document.addEventListener('DOMContentLoaded',initMenu);
+})();
+</script>
+
+<script id="doctor-access-guard">
+(function(){
+  const originalShow=window.show;
+  if(typeof originalShow!=='function') return;
+  window.show=function(id){
+    const role=window.portalCurrentRole ? window.portalCurrentRole() : document.body.dataset.role;
+    if(role==='doctor' && id!=='doctor' && id!=='detail'){
+      id='doctor';
+    }
+    originalShow(id);
+  };
+})();
+</script>
+
+
+<script id="multi-login-script">
+(function(){
+  const KEY='diabetes_remembered_accounts_v3';
+
+  function read(){
+    try{
+      const x=JSON.parse(localStorage.getItem(KEY)||'[]');
+      return Array.isArray(x)?x:[];
+    }catch(e){return [];}
+  }
+  function write(x){localStorage.setItem(KEY,JSON.stringify(x));}
+  function roleName(r){return ({admin:'ადმინისტრატორი',registrar:'რეგისტრატორი',doctor:'ექიმი'})[r]||'';}
+
+  function showList(){
+    const u=document.getElementById('loginUser');
+    const box=document.getElementById('rememberedLoginList');
+    if(!u||!box)return;
+    const q=(u.value||'').trim().toLowerCase();
+    const all=read();
+    const list=q ? all.filter(a=>(a.username||'').toLowerCase().startsWith(q)) : all;
+    if(!list.length){box.innerHTML='';box.style.display='none';return;}
+    box.innerHTML=list.map((a,i)=>
+      '<div class="remembered-login-item" data-i="'+i+'"><strong>'+a.username+'</strong><small>'+ (a.name||'') +' — '+roleName(a.role) +'</small></div>'
+    ).join('');
+    box.style.display='block';
+    box.querySelectorAll('.remembered-login-item').forEach(function(el){
+      el.addEventListener('mousedown',function(e){
+        e.preventDefault();
+        const currentQ=(u.value||'').trim().toLowerCase();
+        const current=read().filter(a=>!currentQ || (a.username||'').toLowerCase().startsWith(currentQ));
+        const a=current[Number(el.dataset.i)];
+        if(!a)return;
+        u.value=a.username||'';
+        const c=document.getElementById('rememberLogin');
+        if(c)c.checked=true;
+        box.style.display='none';
+      });
+    });
+  }
+
+  window.rememberSuccessfulLogin=function(account){
+    // V48: remember only the username/role label, never the password.
+    if(!account)return;
+    let all=read().filter(a=>a.username!==account.username);
+    all.unshift({username:account.username,name:account.name||'',role:account.role||''});
+    write(all.slice(0,10));
+  };
+
+  function setup(){
+    const u=document.getElementById('loginUser');
+    const p=document.getElementById('loginPass');
+    const c=document.getElementById('rememberLogin');
+    if(!u)return;
+
+    // Migrate the old single remembered login, if present.
+    try{
+      const old=JSON.parse(localStorage.getItem('diabetes_remembered_login')||'null');
+      if(old && old.username && !read().some(a=>a.username===old.username)){
+        const all=read();
+        all.unshift({username:old.username,name:'',role:''});
+        write(all.slice(0,10));
+      }
+    }catch(e){}
+
+    const all=read();
+    if(all.length){
+      u.value=all[0].username||'';
+      if(c)c.checked=true;
+    }
+
+    u.addEventListener('input',showList);
+    u.addEventListener('focus',function(){
+      if(u.value)showList();
+    });
+    document.addEventListener('click',function(e){
+      const wrap=document.querySelector('.login-user-wrap');
+      const box=document.getElementById('rememberedLoginList');
+      if(box && wrap && !wrap.contains(e.target))box.style.display='none';
+    });
+  }
+  document.addEventListener('DOMContentLoaded',setup);
+})();
+</script>
+
+
+<script id="mobile-menu-v42">
+(function(){
+  function mobile(){
+    return window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+  }
+  function closeMobileMenu(){
+    document.body.classList.remove('mobile-menu-open');
+    var b=document.getElementById('sideMenuToggle');
+    if(b)b.setAttribute('aria-expanded','false');
+  }
+  function openMobileMenu(){
+    document.body.classList.add('mobile-menu-open');
+    var b=document.getElementById('sideMenuToggle');
+    if(b)b.setAttribute('aria-expanded','true');
+  }
+  function bind(){
+    var b=document.getElementById('sideMenuToggle');
+    if(!b)return;
+    b.onclick=function(){
+      if(mobile()){
+        document.body.classList.contains('mobile-menu-open') ? closeMobileMenu() : openMobileMenu();
+      }else{
+        document.body.classList.toggle('menu-collapsed');
+      }
+    };
+    document.querySelectorAll('.sidebar button,.sidebar a').forEach(function(el){
+      if(el.id==='sideMenuToggle')return;
+      el.addEventListener('click',function(){
+        if(mobile()) setTimeout(closeMobileMenu,100);
+      });
+    });
+  }
+  document.addEventListener('DOMContentLoaded',bind);
+  window.addEventListener('resize',function(){
+    if(!mobile()) closeMobileMenu();
+  });
+})();
+</script>
+
+</body>
+</html>
