@@ -2,159 +2,213 @@
 <html lang="ka">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>დიაბეტის კომისია — DEMO</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>დიაბეტის კომისია — ელექტრონული მოდული | DEMO</title>
 <style>
-:root{--blue:#1769aa;--light:#f4f7fb;--border:#d9e1ea;--text:#1f2937;--muted:#6b7280;--green:#16834b;--red:#b42318}
-*{box-sizing:border-box} body{margin:0;font-family:Arial,"Noto Sans Georgian",sans-serif;background:var(--light);color:var(--text)}
-header{background:var(--blue);color:#fff;padding:16px 26px;display:flex;justify-content:space-between;align-items:center}
-header h1{font-size:21px;margin:0}.demo{background:#fff;color:var(--blue);padding:6px 11px;border-radius:15px;font-size:12px;font-weight:bold}
-nav{background:#fff;border-bottom:1px solid var(--border);padding:11px 24px;display:flex;gap:8px;flex-wrap:wrap}
-button{border:0;border-radius:7px;padding:10px 15px;cursor:pointer;font-size:14px}
-nav button{background:#eef3f8;color:#234}.primary{background:var(--blue);color:white}.success{background:#16834b;color:white}.danger{background:#b42318;color:white}.secondary{background:#eef2f6}
-main{max-width:1220px;margin:auto;padding:24px}.page{display:none}.page.active{display:block}
-h2{margin-top:0}.sub{color:var(--muted);font-size:14px}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin:20px 0}
-.card{background:#fff;border:1px solid var(--border);border-radius:11px;padding:20px}.card .num{font-size:28px;font-weight:bold;margin-top:8px}
-.panel{background:#fff;border:1px solid var(--border);border-radius:11px;padding:20px;margin-top:18px}
-table{width:100%;border-collapse:collapse}th,td{padding:12px 10px;border-bottom:1px solid #e8edf2;text-align:left;font-size:13px}th{background:#f7f9fb}
-.badge{display:inline-block;padding:5px 9px;border-radius:12px;font-size:12px;font-weight:bold}.pending{background:#fff4cc;color:#7a5b00}.positive{background:#def7e8;color:#126b3e}.negative{background:#fde3e3;color:#9b1c1c}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.field input,.field select,.field textarea{width:100%;padding:10px;border:1px solid #ccd5df;border-radius:6px;background:#fff}.field textarea{min-height:90px}
-.viewer{height:420px;border:1px dashed #aab7c5;border-radius:8px;background:#f8fafc;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted)}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.toast{position:fixed;right:20px;bottom:20px;background:#222;color:#fff;padding:12px 16px;border-radius:8px;display:none}
-.notice{padding:12px 15px;background:#eef6ff;border-left:4px solid var(--blue);border-radius:5px;margin:15px 0;font-size:13px}
-@media(max-width:800px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}main{padding:14px}header{padding:14px}.cards{gap:10px}}
-@media(max-width:500px){.cards{grid-template-columns:1fr}th:nth-child(3),td:nth-child(3){display:none}}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,"Noto Sans Georgian",sans-serif;background:#f4f7fb;color:#1f2937}
+:root{--blue:#1769aa;--dark:#123b5d;--line:#dce4ec;--muted:#6b7280;--green:#16834b;--red:#b42318;--yellow:#8a6500}
+.app{display:flex;min-height:100vh}.side{width:245px;background:#fff;border-right:1px solid var(--line);position:fixed;inset:0 auto 0 0;z-index:5}
+.brand{background:var(--blue);color:white;padding:18px 16px;font-weight:bold;line-height:1.35}.brand small{display:block;opacity:.8;font-weight:normal;margin-top:5px}
+.demo{margin:12px;background:#eef6ff;color:var(--blue);padding:8px;border-radius:7px;text-align:center;font-size:12px;font-weight:bold}
+.menu{padding:8px}.menu button{width:100%;text-align:left;background:none;border:0;padding:11px 12px;border-radius:7px;cursor:pointer;color:#334155;font-size:14px}.menu button:hover,.menu button.active{background:#eaf3fb;color:var(--blue);font-weight:bold}
+.main{margin-left:245px;width:calc(100% - 245px)}.top{height:65px;background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 25px;position:sticky;top:0;z-index:4}
+.top strong{font-size:18px}.role{font-size:12px;color:var(--muted);background:#f2f4f7;padding:7px 10px;border-radius:15px}
+.content{padding:24px;max-width:1300px;margin:auto}.page{display:none}.page.active{display:block}
+h2{margin:0 0 6px}.sub{color:var(--muted);font-size:13px;margin:0 0 20px}.notice{background:#eef6ff;border-left:4px solid var(--blue);padding:12px 14px;border-radius:5px;font-size:13px;margin-bottom:18px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px}.card .n{font-size:28px;font-weight:bold;margin-top:7px}.card .l{font-size:13px;color:var(--muted)}
+.panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:19px;margin-top:18px}.panel h3{margin:0 0 14px}
+table{width:100%;border-collapse:collapse}th,td{padding:11px 9px;border-bottom:1px solid #e9eef3;text-align:left;font-size:13px}th{background:#f7f9fb}
+.badge{display:inline-block;padding:5px 9px;border-radius:13px;font-size:11px;font-weight:bold}.pending{background:#fff3cd;color:#765600}.positive{background:#def7e8;color:#126b3e}.negative{background:#fde3e3;color:#9b1c1c}
+.btn{border:0;border-radius:6px;padding:9px 13px;cursor:pointer;font-size:13px}.primary{background:var(--blue);color:white}.success{background:var(--green);color:white}.danger{background:var(--red);color:white}.light{background:#edf2f7;color:#334155}.outline{background:white;border:1px solid #cbd5e1;color:#334155}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.field input,.field select,.field textarea{width:100%;padding:10px;border:1px solid #ccd5df;border-radius:6px;background:#fff}.field textarea{min-height:85px;resize:vertical}
+.section-title{grid-column:1/-1;border-bottom:1px solid var(--line);padding-bottom:8px;font-weight:bold;margin-top:5px}
+.viewer{height:380px;border:1px dashed #aab7c5;border-radius:8px;background:#f8fafc;display:flex;align-items:center;justify-content:center;text-align:center;color:#667085}
+.search{display:flex;gap:8px}.search input{flex:1;padding:10px;border:1px solid #ccd5df;border-radius:6px}
+.kpi{display:flex;gap:10px;flex-wrap:wrap}.mini{background:#f7f9fb;border:1px solid var(--line);border-radius:7px;padding:10px 13px;font-size:12px}
+.empty{padding:35px;text-align:center;color:var(--muted)}.toast{position:fixed;right:22px;bottom:22px;background:#222;color:#fff;padding:12px 16px;border-radius:7px;display:none;z-index:20}
+@media(max-width:900px){.side{width:70px}.brand span,.brand small,.demo,.menu button span{display:none}.menu button{text-align:center}.main{margin-left:70px;width:calc(100% - 70px)}.cards{grid-template-columns:repeat(2,1fr)}.grid,.grid3{grid-template-columns:1fr}}
+@media(max-width:600px){.cards{grid-template-columns:1fr}.content{padding:13px}.top{padding:0 13px}}
 </style>
 </head>
 <body>
-<header>
-  <h1>დიაბეტის კომისიის ელექტრონული მოდული</h1>
-  <span class="demo">სადემონსტრაციო რეჟიმი</span>
-</header>
-<nav>
-  <button onclick="show('dashboard')">Dashboard</button>
-  <button onclick="show('registry')">განაცხადების რეესტრი</button>
-  <button onclick="show('doctor')">ექიმის სამუშაო სივრცე</button>
-  <button onclick="show('newcase')">ახალი განაცხადი</button>
-</nav>
+<div class="app">
+<aside class="side">
+ <div class="brand"><span>დიაბეტის კომისიის<br>ელექტრონული მოდული</span><small>სამუშაო პროცესის დემო</small></div>
+ <div class="demo">სადემონსტრაციო რეჟიმი</div>
+ <div class="menu">
+  <button class="active" data-page="dashboard" onclick="show('dashboard',this)">▣ <span>Dashboard</span></button>
+  <button data-page="registry" onclick="show('registry',this)">▤ <span>განაცხადების რეესტრი</span></button>
+  <button data-page="new" onclick="show('new',this)">＋ <span>ახალი განაცხადი</span></button>
+  <button data-page="groups" onclick="show('groups',this)">▦ <span>კვირის ჯგუფები</span></button>
+  <button data-page="doctor" onclick="show('doctor',this)">☑ <span>ექიმის სამუშაო სივრცე</span></button>
+  <button data-page="excel" onclick="show('excel',this)">⇩ <span>Excel / მონაცემები</span></button>
+  <button data-page="users" onclick="show('users',this)">♙ <span>მომხმარებლების მართვა</span></button>
+  <button data-page="info" onclick="show('info',this)">ⓘ <span>მოდულის შესახებ</span></button>
+ </div>
+</aside>
 
-<main>
+<div class="main">
+<header class="top"><strong id="pageTitle">Dashboard</strong><div class="role">დემო ადმინისტრატორი</div></header>
+<div class="content">
+
 <section id="dashboard" class="page active">
-  <h2>მთავარი გვერდი</h2>
-  <div class="notice">ეს არის მხოლოდ პრეზენტაციისთვის შექმნილი დემო. მონაცემები პირობითია და რეალურ პაციენტურ ინფორმაციას არ შეიცავს.</div>
-  <div class="cards">
-    <div class="card">სულ განაცხადები<div class="num" id="total">4</div></div>
-    <div class="card">განსახილველი<div class="num" id="pending">3</div></div>
-    <div class="card">დადებითი<div class="num" id="pos">1</div></div>
-    <div class="card">უარყოფითი<div class="num" id="neg">0</div></div>
-  </div>
-  <div class="panel">
-    <h3>ბოლო განაცხადები</h3>
-    <table><thead><tr><th>№</th><th>ბენეფიციარი</th><th>თარიღი</th><th>სტატუსი</th></tr></thead>
-    <tbody id="dashRows"></tbody></table>
-  </div>
+ <h2>მთავარი გვერდი</h2><p class="sub">დიაბეტის კომისიის განაცხადების ელექტრონული მართვის დემო.</p>
+ <div class="notice">ეს ვერსია შექმნილია პრეზენტაციისთვის. ყველა პირადი მონაცემი, განაცხადი და დოკუმენტი არის პირობითი.</div>
+ <div class="cards">
+  <div class="card"><div class="l">სულ განაცხადები</div><div class="n" id="kTotal">8</div></div>
+  <div class="card"><div class="l">განსახილველი</div><div class="n" id="kPending">5</div></div>
+  <div class="card"><div class="l">დადებითი</div><div class="n" id="kPos">2</div></div>
+  <div class="card"><div class="l">უარყოფითი</div><div class="n" id="kNeg">1</div></div>
+ </div>
+ <div class="panel"><h3>მიმდინარე კვირის განაცხადები</h3><table><thead><tr><th>№</th><th>ბენეფიციარი</th><th>თარიღი</th><th>სტატუსი</th><th>ქმედება</th></tr></thead><tbody id="dashRows"></tbody></table></div>
 </section>
 
 <section id="registry" class="page">
-  <h2>განაცხადების რეესტრი</h2>
-  <p class="sub">დემო მონაცემები — სამუშაო პროცესის საჩვენებლად.</p>
-  <div class="panel"><table><thead><tr><th>№</th><th>ბენეფიციარი</th><th>პირობითი პირადი №</th><th>ICD</th><th>სტატუსი</th><th>ქმედება</th></tr></thead>
-  <tbody id="registryRows"></tbody></table></div>
+ <h2>განაცხადების რეესტრი</h2><p class="sub">ყველა შემოსული განაცხადი და მისი მიმდინარე სტატუსი.</p>
+ <div class="panel"><div class="search"><input placeholder="ძებნა — გვარი, პირადი № ან განაცხადის №"><button class="primary" onclick="toast('დემო ძებნა შესრულდა')">ძებნა</button></div></div>
+ <div class="panel"><table><thead><tr><th>№</th><th>წერილი №</th><th>ბენეფიციარი</th><th>ICD</th><th>ექიმი</th><th>სტატუსი</th><th>ქმედება</th></tr></thead><tbody id="regRows"></tbody></table></div>
+</section>
+
+<section id="new" class="page">
+ <h2>ახალი განაცხადი</h2><p class="sub">რეგისტრატორი ავსებს განაცხადს და ტვირთავს Form №100-ს.</p>
+ <div class="panel"><div class="grid3">
+  <div class="section-title">განაცხადის მონაცემები</div>
+  <div class="field"><label>წერილი №</label><input value="DEMO/2026/001"></div>
+  <div class="field"><label>თარიღი</label><input value="24/09/2026"></div>
+  <div class="field"><label>დაბადების თარიღი</label><input placeholder="DD/MM/YYYY"></div>
+  <div class="field"><label>პირადი №</label><input placeholder="00000000000"></div>
+  <div class="field"><label>გვარი</label><input placeholder="გვარი"></div>
+  <div class="field"><label>სახელი</label><input placeholder="სახელი"></div>
+  <div class="field"><label>მისამართი</label><input placeholder="მისამართი"></div>
+  <div class="field"><label>ტელეფონი</label><input placeholder="5XX XX XX XX"></div>
+  <div class="field"><label>ICD კოდი</label><input value="E10"></div>
+  <div class="field"><label>დაწესებულება</label><input placeholder="სამედიცინო დაწესებულება"></div>
+  <div class="field"><label>ექიმი</label><input placeholder="ექიმი"></div>
+  <div class="field"><label>Form №100-ის თარიღი</label><input placeholder="DD/MM/YYYY"></div>
+  <div class="field"><label>ლანტუსი</label><input placeholder="რაოდენობა"></div>
+  <div class="field"><label>აპიდრა</label><input placeholder="რაოდენობა"></div>
+  <div class="field"><label>ტიპი</label><select><option>ტიპი I</option><option>ტიპი II</option></select></div>
+  <div class="field"><label>გლიკო%</label><input placeholder="%"></div>
+  <div class="section-title">დოკუმენტები</div>
+  <div class="field"><label>Form №100</label><input type="file" accept=".pdf,image/*"></div>
+  <div class="field"><label>დამატებითი ფაილი</label><input type="file" accept=".pdf,image/*"></div>
+  <div class="field"><label>შენიშვნა</label><textarea placeholder="შენიშვნა"></textarea></div>
+ </div><div class="actions" style="margin-top:18px"><button class="primary" onclick="toast('დემო განაცხადი წარმატებით შეიქმნა')">განაცხადის შენახვა</button><button class="light" onclick="show('registry')">გაუქმება</button></div></div>
+</section>
+
+<section id="groups" class="page">
+ <h2>კვირის ჯგუფები</h2><p class="sub">განაცხადების დაჯგუფება, დამუშავების დასრულება და Excel-ის მომზადება.</p>
+ <div class="cards">
+  <div class="card"><div class="l">ჯგუფი №001</div><div class="n">5</div><div class="l">განაცხადი</div></div>
+  <div class="card"><div class="l">დამუშავებული</div><div class="n">2</div></div>
+  <div class="card"><div class="l">დარჩენილი</div><div class="n">3</div></div>
+  <div class="card"><div class="l">სტატუსი</div><div style="margin-top:10px"><span class="badge pending">მიმდინარე</span></div></div>
+ </div>
+ <div class="panel"><h3>ჯგუფი №001 — მიმდინარე კვირა</h3><table><thead><tr><th>№</th><th>ბენეფიციარი</th><th>რეზოლუცია</th><th>რეზოლუციის დრო</th></tr></thead><tbody>
+ <tr><td>DC-2026-001</td><td>ნინო ბერიძე</td><td><span class="badge positive">დადებითი</span></td><td>24/09/2026 10:12</td></tr>
+ <tr><td>DC-2026-002</td><td>გიორგი მაისურაძე</td><td><span class="badge positive">დადებითი</span></td><td>24/09/2026 10:28</td></tr>
+ <tr><td>DC-2026-003</td><td>ანა კაპანაძე</td><td><span class="badge pending">განსახილველი</span></td><td>—</td></tr>
+ </tbody></table>
+ <div class="actions" style="margin-top:15px"><button class="success" onclick="toast('ჯგუფის Excel მომზადდა — DEMO')">Excel-ის გენერირება</button><button class="primary" onclick="toast('SMS შეტყობინებების სია მომზადდა — DEMO')">SMS სიის მომზადება</button></div></div>
 </section>
 
 <section id="doctor" class="page">
-  <h2>ექიმის სამუშაო სივრცე</h2>
-  <p class="sub">ექიმი ხსნის განსახილველ განაცხადს, ეცნობა დოკუმენტს და აფიქსირებს რეზოლუციას.</p>
-  <div class="panel" id="doctorPanel">
-    <div class="grid">
-      <div class="field"><label>განაცხადის №</label><input id="dno" readonly></div>
-      <div class="field"><label>ბენეფიციარი</label><input id="dname" readonly></div>
-      <div class="field"><label>ICD კოდი</label><input id="dicd" readonly></div>
-      <div class="field"><label>გლიკო%</label><input id="dglyco" readonly></div>
-    </div>
-    <div class="panel" style="margin-top:18px">
-      <h3>Form №100</h3>
-      <div class="viewer">
-        <div><b>სადემონსტრაციო PDF</b><br><br>Form №100-ის დოკუმენტის სანახავად დააჭირე ღილაკს.<br><br>
-        <a href="demo-form100.pdf" target="_blank"><button class="primary">PDF-ის გახსნა</button></a></div>
-      </div>
-    </div>
-    <div class="resolution-box panel">
-      <h3>რეზოლუცია</h3>
-      <div class="actions">
-        <button class="success" onclick="resolve('დადებითი')">✓ დადებითი</button>
-        <button class="danger" onclick="resolve('უარყოფითი')">✕ უარყოფითი</button>
-      </div>
-      <div class="field" style="margin-top:14px"><label>შენიშვნა</label><textarea id="note" placeholder="შენიშვნა..."></textarea></div>
-    </div>
-  </div>
+ <h2>ექიმის სამუშაო სივრცე</h2><p class="sub">ექიმი ხსნის ნებისმიერ განსახილველ განაცხადს, ეცნობა დოკუმენტს და აფიქსირებს რეზოლუციას.</p>
+ <div class="panel"><div class="kpi"><div class="mini">განაცხადი: <b id="dId">DC-2026-001</b></div><div class="mini">სტატუსი: <b id="dStatus">განსახილველი</b></div></div></div>
+ <div class="grid">
+  <div class="panel"><h3>განაცხადის მონაცემები</h3><div class="grid">
+   <div class="field"><label>გვარი, სახელი</label><input value="ნინო ბერიძე" readonly></div>
+   <div class="field"><label>პირადი №</label><input value="01001000001" readonly></div>
+   <div class="field"><label>ICD კოდი</label><input value="E10" readonly></div>
+   <div class="field"><label>გლიკო%</label><input value="8.1" readonly></div>
+   <div class="field"><label>ტიპი</label><input value="ტიპი I" readonly></div>
+   <div class="field"><label>დაწესებულება</label><input value="დემო კლინიკა" readonly></div>
+  </div></div>
+  <div class="panel"><h3>Form №100</h3><div class="viewer"><div><b>დოკუმენტი ატვირთულია</b><br><br><a href="demo-form100.pdf" target="_blank"><button class="primary">PDF-ის გახსნა</button></a></div></div></div>
+ </div>
+ <div class="panel"><h3>რეზოლუცია</h3><div class="actions"><button class="success" onclick="resolve('დადებითი')">✓ დადებითი</button><button class="danger" onclick="resolve('უარყოფითი')">✕ უარყოფითი</button></div><div class="field" style="margin-top:14px"><label>შენიშვნა</label><textarea id="resNote" placeholder="შენიშვნა..."></textarea></div></div>
 </section>
 
-<section id="newcase" class="page">
-  <h2>ახალი განაცხადი</h2>
-  <p class="sub">სადემონსტრაციო ფორმა — რეალურ მონაცემებს არ ინახავს.</p>
-  <div class="panel">
-    <div class="grid">
-      <div class="field"><label>გვარი</label><input placeholder="მაგ.: ბერიძე"></div>
-      <div class="field"><label>სახელი</label><input placeholder="მაგ.: ნინო"></div>
-      <div class="field"><label>პირადი №</label><input placeholder="00000000000"></div>
-      <div class="field"><label>დაბადების თარიღი</label><input placeholder="DD/MM/YYYY"></div>
-      <div class="field"><label>ICD კოდი</label><input placeholder="E10"></div>
-      <div class="field"><label>ფორმა №100-ის თარიღი</label><input placeholder="DD/MM/YYYY"></div>
-    </div>
-    <div class="actions"><button class="primary" onclick="toast('დემო რეჟიმში განაცხადი მხოლოდ ვიზუალურად იქმნება.')">განაცხადის შენახვა</button></div>
-  </div>
+<section id="excel" class="page">
+ <h2>Excel / მონაცემები</h2><p class="sub">Excel გამოიყენება როგორც შემდგომი რეგისტრაციისთვის მოსამზადებელი მონაცემთა წყარო.</p>
+ <div class="grid">
+  <div class="panel"><h3>Excel-ის იმპორტი</h3><p class="sub">არსებული მონაცემების ბაზაში შემოტანის დემო.</p><input type="file" accept=".xlsx,.xls,.csv"><div class="actions" style="margin-top:12px"><button class="primary" onclick="toast('Excel ფაილი დამუშავდა — DEMO')">იმპორტი</button></div></div>
+  <div class="panel"><h3>Excel-ის ექსპორტი</h3><p class="sub">რეგისტრაციისთვის საჭირო სვეტების თანმიმდევრობით.</p><div class="actions"><button class="success" onclick="downloadDemo()">Excel-ის ჩამოტვირთვა</button></div></div>
+ </div>
+ <div class="panel"><h3>ექსპორტის სვეტები</h3><p class="sub">№, წერილი №, თარიღი, დაბადების თარიღი, პირადი №, მისამართი, ტელეფონი, გვარი, სახელი, ICD კოდი, დაწესებულება, ექიმი, Form №100-ის თარიღი, ლანტუსი, აპიდრა, ტიპი, გლიკო%, შენიშვნა, სტატუსი, რეზოლუციის თარიღი/დრო.</p></div>
 </section>
-</main>
+
+<section id="users" class="page">
+ <h2>მომხმარებლების მართვა</h2><p class="sub">ადმინისტრატორი მართავს სისტემის მომხმარებლებსა და როლებს.</p>
+ <div class="panel"><div class="grid3">
+  <div class="field"><label>სახელი და გვარი</label><input id="uName" placeholder="სახელი გვარი"></div>
+  <div class="field"><label>ელფოსტა / იუზერი</label><input placeholder="user@example.gov.ge"></div>
+  <div class="field"><label>როლი</label><select><option>რეგისტრატორი</option><option>ექიმი</option><option>ადმინისტრატორი</option></select></div>
+ </div><div class="actions" style="margin-top:14px"><button class="primary" onclick="toast('მომხმარებელი დაემატა — DEMO')">＋ მომხმარებლის დამატება</button></div></div>
+ <div class="panel"><table><thead><tr><th>სახელი</th><th>იუზერი</th><th>როლი</th><th>სტატუსი</th></tr></thead><tbody>
+ <tr><td>ადმინისტრატორი</td><td>admin@demo.gov.ge</td><td>ადმინისტრატორი</td><td><span class="badge positive">აქტიური</span></td></tr>
+ <tr><td>ნინო ექიმი</td><td>doctor@demo.gov.ge</td><td>ექიმი</td><td><span class="badge positive">აქტიური</span></td></tr>
+ <tr><td>დემო რეგისტრატორი</td><td>registrar@demo.gov.ge</td><td>რეგისტრატორი</td><td><span class="badge positive">აქტიური</span></td></tr>
+ </tbody></table></div>
+</section>
+
+<section id="info" class="page">
+ <h2>მოდულის შესახებ</h2><p class="sub">სადემონსტრაციო ვერსია დირექტორისთვის.</p>
+ <div class="panel"><h3>რას ცვლის მოდული?</h3><ol>
+ <li>განაცხადისა და Form №100-ის ელექტრონული რეგისტრაცია;</li>
+ <li>დოკუმენტების ცენტრალიზებული შენახვა;</li>
+ <li>ექიმისთვის განაცხადის ელექტრონულად მიწოდება;</li>
+ <li>დადებითი/უარყოფითი რეზოლუციის დაფიქსირება;</li>
+ <li>რეზოლუციის თარიღისა და დროის ავტომატური აღრიცხვა;</li>
+ <li>კვირის ჯგუფების მართვა;</li>
+ <li>Excel-ის იმპორტი და შემდგომი ექსპორტი გარე პროგრამაში რეგისტრაციისთვის;</li>
+ <li>მომხმარებლებისა და როლების მართვა;</li>
+ <li>ფიზიკური დოკუმენტების გადაადგილებისა და მონაცემების ორმაგი შეყვანის შემცირება.</li>
+ </ol></div>
+ <div class="panel"><h3>შემდეგი ეტაპი</h3><p>დემო ვერსია არ იყენებს რეალურ მონაცემებს. სამუშაო ვერსია უნდა განთავსდეს სააგენტოს მიერ გამოყოფილ სერვერზე/ინფრასტრუქტურაზე, შესაბამისი ავტორიზაციით, მონაცემთა ბაზით, დოკუმენტების დაცული საცავით, audit log-ით და სარეზერვო მექანიზმებით.</p></div>
+</section>
+
+</div></div>
 <div class="toast" id="toast"></div>
-
 <script>
-const cases=[
- {id:'DC-2026-001',name:'ნინო ბერიძე',pid:'01001000001',date:'22/09/2026',icd:'E10',glyco:'8.1',status:'განსახილველი'},
- {id:'DC-2026-002',name:'გიორგი მაისურაძე',pid:'01001000002',date:'21/09/2026',icd:'E10',glyco:'7.6',status:'განსახილველი'},
- {id:'DC-2026-003',name:'ანა კაპანაძე',pid:'01001000003',date:'20/09/2026',icd:'E10',glyco:'8.4',status:'დადებითი'},
- {id:'DC-2026-004',name:'ლუკა ჯაფარიძე',pid:'01001000004',date:'19/09/2026',icd:'E10',glyco:'9.0',status:'განსახილველი'}
+const data=[
+['DC-2026-001','DEMO/001','ნინო ბერიძე','E10','დემო კლინიკა','დადებითი'],
+['DC-2026-002','DEMO/002','გიორგი მაისურაძე','E10','დემო კლინიკა','დადებითი'],
+['DC-2026-003','DEMO/003','ანა კაპანაძე','E10','დემო კლინიკა','განსახილველი'],
+['DC-2026-004','DEMO/004','ლუკა ჯაფარიძე','E10','დემო კლინიკა','განსახილველი'],
+['DC-2026-005','DEMO/005','მარიამ ქავთარაძე','E10','დემო კლინიკა','უარყოფითი'],
+['DC-2026-006','DEMO/006','საბა აბაშიძე','E10','დემო კლინიკა','განსახილველი'],
+['DC-2026-007','DEMO/007','ელენე ბერაძე','E10','დემო კლინიკა','განსახილველი'],
+['DC-2026-008','DEMO/008','დავით მელაძე','E10','დემო კლინიკა','განსახილველი']
 ];
-let selected=cases[0];
-
-function show(id){
+function badge(s){let c=s==='დადებითი'?'positive':s==='უარყოფითი'?'negative':'pending';return `<span class="badge ${c}">${s}</span>`}
+function render(){
+ let p=data.filter(x=>x[5]==='განსახილველი').length,po=data.filter(x=>x[5]==='დადებითი').length,n=data.filter(x=>x[5]==='უარყოფითი').length;
+ kTotal.textContent=data.length;kPending.textContent=p;kPos.textContent=po;kNeg.textContent=n;
+ dashRows.innerHTML=data.slice(0,5).map(x=>`<tr><td>${x[0]}</td><td>${x[2]}</td><td>24/09/2026</td><td>${badge(x[5])}</td><td><button class="light btn" onclick="openDoctor('${x[0]}')">გახსნა</button></td></tr>`).join('');
+ regRows.innerHTML=data.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td><td>${x[4]}</td><td>${badge(x[5])}</td><td><button class="light btn" onclick="openDoctor('${x[0]}')">გახსნა</button></td></tr>`).join('');
+}
+function show(id,btn){
  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
  document.getElementById(id).classList.add('active');
- if(id==='dashboard') render();
- if(id==='registry') renderRegistry();
- if(id==='doctor') loadDoctor(selected);
+ document.querySelectorAll('.menu button').forEach(x=>x.classList.remove('active'));
+ if(btn)btn.classList.add('active');
+ const titles={dashboard:'Dashboard',registry:'განაცხადების რეესტრი',new:'ახალი განაცხადი',groups:'კვირის ჯგუფები',doctor:'ექიმის სამუშაო სივრცე',excel:'Excel / მონაცემები',users:'მომხმარებლების მართვა',info:'მოდულის შესახებ'};
+ pageTitle.textContent=titles[id];
 }
-function badge(s){
- let c=s==='დადებითი'?'positive':s==='უარყოფითი'?'negative':'pending';
- return `<span class="badge ${c}">${s}</span>`;
-}
-function render(){
- document.getElementById('total').textContent=cases.length;
- document.getElementById('pending').textContent=cases.filter(x=>x.status==='განსახილველი').length;
- document.getElementById('pos').textContent=cases.filter(x=>x.status==='დადებითი').length;
- document.getElementById('neg').textContent=cases.filter(x=>x.status==='უარყოფითი').length;
- document.getElementById('dashRows').innerHTML=cases.map(x=>`<tr><td>${x.id}</td><td>${x.name}</td><td>${x.date}</td><td>${badge(x.status)}</td></tr>`).join('');
-}
-function renderRegistry(){
- document.getElementById('registryRows').innerHTML=cases.map((x,i)=>`<tr><td>${x.id}</td><td>${x.name}</td><td>${x.pid}</td><td>${x.icd}</td><td>${badge(x.status)}</td><td><button class="secondary" onclick="openCase(${i})">გახსნა</button></td></tr>`).join('');
-}
-function openCase(i){selected=cases[i];show('doctor')}
-function loadDoctor(x){
- document.getElementById('dno').value=x.id;
- document.getElementById('dname').value=x.name;
- document.getElementById('dicd').value=x.icd;
- document.getElementById('dglyco').value=x.glyco;
- document.getElementById('note').value='';
+function openDoctor(id){
+ const x=data.find(a=>a[0]===id);if(!x)return;
+ document.getElementById('dId').textContent=x[0];document.getElementById('dStatus').textContent=x[5];
+ show('doctor',document.querySelector('[data-page="doctor"]'));
 }
 function resolve(status){
- if(selected.status!=='განსახილველი'){toast('ეს განაცხადი უკვე დამუშავებულია.');return}
- selected.status=status;
- selected.resolutionDate=new Date().toLocaleString('ka-GE');
- toast(`რეზოლუცია დაფიქსირდა: ${status}`);
- render();renderRegistry();loadDoctor(selected);
+ const id=document.getElementById('dId').textContent;const x=data.find(a=>a[0]===id);
+ if(x){x[5]=status;document.getElementById('dStatus').textContent=status;render();toast('რეზოლუცია დაფიქსირდა: '+status)}
 }
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500)}
+function downloadDemo(){
+ const csv='№,წერილი №,თარიღი,დაბადების თარიღი,პირადი №,მისამართი,ტელეფონი,გვარი,სახელი,ICD კოდი,დაწესებულება,ექიმი,Form №100-ის თარიღი,ლანტუსი,აპიდრა,ტიპი,გლიკო%,შენიშვნა,სტატუსი,რეზოლუციის თარიღი/დრო\n1,DEMO/001,24/09/2026,01/01/2012,01001000001,თბილისი,555000001,ბერიძე,ნინო,E10,დემო კლინიკა,ნინო ექიმი,22/09/2026,10,5,ტიპი I,8.1,,დადებითი,24/09/2026 10:12';
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download='diabetes_commission_demo_export.csv';a.click();toast('დემო Excel/CSV მომზადდა')}
 render();
 </script>
 </body>
